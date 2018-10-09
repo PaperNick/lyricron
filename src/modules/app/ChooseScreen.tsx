@@ -43,10 +43,10 @@ export function ChooseScreen({
             />
           )}
           <ActionCard
-            icon={<ManualIcon color="primary" />}
-            title="Enter Manually"
-            description="Type or paste the lyrics yourself, then time each line."
-            onClick={onManual}
+            icon={<ImportCardIcon color="primary" />}
+            title="Import File"
+            description="Load lyrics from an .lrc, .srt or .txt file."
+            onClick={onImport}
           />
           <ActionCard
             icon={<SearchCardIcon color="primary" />}
@@ -55,10 +55,10 @@ export function ChooseScreen({
             onClick={onSearch}
           />
           <ActionCard
-            icon={<ImportCardIcon color="primary" />}
-            title="Import File"
-            description="Load lyrics from an .lrc, .srt or .txt file."
-            onClick={onImport}
+            icon={<ManualIcon color="primary" />}
+            title="Enter Manually"
+            description="Type or paste the lyrics yourself, then time each line."
+            onClick={onManual}
           />
         </ActionCards>
       </AddLyricsStack>
