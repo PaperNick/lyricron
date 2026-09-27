@@ -6,7 +6,7 @@ const THEME_STORAGE_KEY = 'lyricron-theme';
 
 export function loadThemeMode(): ThemeMode {
   const stored = localStorage.getItem(THEME_STORAGE_KEY);
-  return stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'dark';
+  return stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system';
 }
 
 export function saveThemeMode(mode: ThemeMode): void {

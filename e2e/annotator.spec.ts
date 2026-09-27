@@ -663,11 +663,8 @@ test.describe('lyricron', () => {
     await expect.poll(currentTime).toBeCloseTo(10, 1);
   });
 
-  test('cycles the theme between dark, system and light', async ({ page }) => {
+  test('cycles the theme between system, light and dark', async ({ page }) => {
     await loadAudio(page);
-
-    await expect(page.getByRole('button', { name: 'Theme: Dark' })).toBeVisible();
-    await page.getByRole('button', { name: 'Theme: Dark' }).click();
 
     await expect(page.getByRole('button', { name: 'Theme: System' })).toBeVisible();
     await page.getByRole('button', { name: 'Theme: System' }).click();
