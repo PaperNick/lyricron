@@ -1,0 +1,22 @@
+# Lyricron
+
+> Create perfectly timed lyrics by ear: play a track, tap along, and export a ready-to-use .lrc file. Free, 100% private, and works entirely offline in the browser.
+
+## The app
+
+- [Launch the app](__SITE_URL__/app/): the Lyricron editor, no account or install needed.
+
+## About
+
+- [How it works](__SITE_URL__/#how-it-works): the four-step workflow.
+- [Features](__SITE_URL__/#features): what Lyricron can do.
+- [Output](__SITE_URL__/#output): the .lrc format it exports.
+
+## Development
+
+- [Source code](https://github.com/PaperNick/lyricron): the GitHub repository.
+- [License](https://github.com/PaperNick/lyricron/blob/main/LICENSE): MIT.
+
+## Support
+
+- [Buy me a coffee](https://ko-fi.com/papernick): support ongoing development.
