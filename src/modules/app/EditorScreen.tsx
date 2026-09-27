@@ -1,0 +1,137 @@
+import type { LyricLine, MobileTab } from '../../types';
+import type { AnnotationStore } from '../editor/useAnnotationStore';
+import type { AudioPlayer } from '../player/useAudioPlayer';
+import { PlainLyricsPane } from '../editor/PlainLyricsPane';
+import { TimedLyricsPane } from '../editor/TimedLyricsPane';
+import { TransportBar } from '../player/TransportBar';
+import {
+  ContentInner,
+  DesktopGrid,
+  MobileLayout,
+  MobileTab as MobileTabButton,
+  MobileTabs,
+  PaneArea,
+} from '../../App.styles';
+
+interface Props {
+  isMobile: boolean;
+  mobileTab: MobileTab;
+  onMobileTabChange: (tab: MobileTab) => void;
+  hasAudio: boolean;
+  lines: LyricLine[];
+  timedLines: LyricLine[];
+  hoveredIndex: number | null;
+  activeIndex: number;
+  nextIndex: number;
+  canAnnotate: boolean;
+  annotateHint: string;
+  store: AnnotationStore;
+  player: AudioPlayer;
+  onShiftLine: (index: number, delta: number) => void;
+  onSeekLine: (index: number) => void;
+  onSetTimeToNow: (index: number) => void;
+  onHoverLine: (index: number | null) => void;
+  onCopyPlain: () => void;
+  onCopyTimed: () => void;
+  onPasteLrc: (text: string) => void;
+  onAnnotate: () => void;
+  onJumpLine: (direction: 1 | -1) => void;
+}
+
+export function EditorScreen({
+  isMobile,
+  mobileTab,
+  onMobileTabChange,
+  hasAudio,
+  lines,
+  timedLines,
+  hoveredIndex,
+  activeIndex,
+  nextIndex,
+  canAnnotate,
+  annotateHint,
+  store,
+  player,
+  onShiftLine,
+  onSeekLine,
+  onSetTimeToNow,
+  onHoverLine,
+  onCopyPlain,
+  onCopyTimed,
+  onPasteLrc,
+  onAnnotate,
+  onJumpLine,
+}: Props) {
+  const plainPane = (
+    <PlainLyricsPane
+      lines={lines}
+      hoveredIndex={hoveredIndex}
+      activeIndex={activeIndex}
+      onChange={store.setText}
+      onCopy={onCopyPlain}
+      onPasteLrc={onPasteLrc}
+    />
+  );
+
+  const timedPane = (
+    <TimedLyricsPane
+      lines={lines}
+      timedLines={timedLines}
+      currentTime={player.currentTime}
+      nextIndex={nextIndex}
+      activeIndex={activeIndex}
+      canSetTime={player.hasStarted}
+      onEditTime={store.setTime}
+      onClearTime={store.clearTime}
+      onShift={onShiftLine}
+      onSeekLine={onSeekLine}
+      onSetTimeToNow={onSetTimeToNow}
+      onSeek={player.seek}
+      onHoverLine={onHoverLine}
+      onCopy={onCopyTimed}
+    />
+  );
+
+  const nextLineText = nextIndex === -1 ? null : lines[nextIndex].text.trim() || 'Blank line';
+
+  return (
+    <ContentInner>
+      {isMobile ? (
+        <MobileLayout>
+          <MobileTabs
+            value={mobileTab}
+            onChange={(_, value: MobileTab) => onMobileTabChange(value)}
+            variant="fullWidth"
+          >
+            <MobileTabButton value="lyrics" label="Lyrics" />
+            <MobileTabButton value="timed" label="Timed" />
+          </MobileTabs>
+          <PaneArea>{mobileTab === 'lyrics' ? plainPane : timedPane}</PaneArea>
+        </MobileLayout>
+      ) : (
+        <DesktopGrid>
+          {plainPane}
+          {timedPane}
+        </DesktopGrid>
+      )}
+      <TransportBar
+        isPlaying={player.isPlaying}
+        disabled={!hasAudio}
+        canAnnotate={canAnnotate}
+        annotateHint={annotateHint}
+        nextLineText={nextLineText}
+        currentTime={player.currentTime}
+        duration={player.duration}
+        markers={timedLines.map((line) => line.time as number)}
+        playbackRate={player.playbackRate}
+        onToggle={player.toggle}
+        onAnnotate={onAnnotate}
+        onSeek={player.seek}
+        onRateChange={player.setPlaybackRate}
+        onShiftAll={store.shiftAll}
+        onPrevLine={() => onJumpLine(-1)}
+        onNextLine={() => onJumpLine(1)}
+      />
+    </ContentInner>
+  );
+}

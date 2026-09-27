@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="1 3 32 40" fill="none">
+  <defs>
+    <linearGradient id="lyricronMark" x1="4" y1="6" x2="34" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#a78bfa" />
+      <stop offset="1" stop-color="#38bdf8" />
+    </linearGradient>
+  </defs>
+  <!-- A waveform pulse that resolves into a tall blinking cursor, audio becoming a caret. -->
+  <path
+    d="M4 24 L11 24 L15 13 L20 33 L25 19 L30 24 L30 6 L30 40"
+    stroke="url(#lyricronMark)"
+    stroke-width="4.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  />
+</svg>

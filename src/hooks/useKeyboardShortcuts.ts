@@ -1,0 +1,109 @@
+import { useEffect } from 'react';
+import { SHORTCUTS } from '../config/shortcuts';
+import { useLatest } from './useLatest';
+
+const SHIFT_STEP = 0.05;
+const SEEK_STEP = 5;
+const FINE_SEEK_STEP = 1;
+
+export interface ShortcutHandlers {
+  toggle: () => void;
+  annotate: () => void;
+  undo: () => void;
+  redo: () => void;
+  shiftLast: (delta: number) => void;
+  jumpTimedLine: (direction: 1 | -1) => void;
+  seek: (time: number) => void;
+  currentTime: number;
+  showHelp: () => void;
+}
+
+const isEditableTarget = (target: EventTarget | null): boolean => {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+  return target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+};
+
+/** Binds the global keyboard shortcuts, ignoring keystrokes in form fields. */
+export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
+  const latest = useLatest(handlers);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (isEditableTarget(event.target)) {
+        return;
+      }
+
+      const activeHandlers = latest.current;
+      const code = event.code;
+      const ctrl = event.ctrlKey || event.metaKey;
+
+      if (ctrl && code === 'KeyZ') {
+        event.preventDefault();
+        if (event.shiftKey) {
+          activeHandlers.redo();
+        } else {
+          activeHandlers.undo();
+        }
+        return;
+      }
+      if (ctrl && code === 'KeyY') {
+        event.preventDefault();
+        activeHandlers.redo();
+        return;
+      }
+
+      if (code === SHORTCUTS.playPause) {
+        event.preventDefault();
+        activeHandlers.toggle();
+        return;
+      }
+      if (code === SHORTCUTS.annotate) {
+        event.preventDefault();
+        activeHandlers.annotate();
+        return;
+      }
+      if (code === SHORTCUTS.undo) {
+        event.preventDefault();
+        activeHandlers.undo();
+        return;
+      }
+      if (code === SHORTCUTS.shiftEarlier) {
+        activeHandlers.shiftLast(-SHIFT_STEP);
+        return;
+      }
+      if (code === SHORTCUTS.shiftLater) {
+        activeHandlers.shiftLast(SHIFT_STEP);
+        return;
+      }
+      if (code === SHORTCUTS.seekBack) {
+        event.preventDefault();
+        if (ctrl) {
+          activeHandlers.jumpTimedLine(-1);
+        } else {
+          const step = event.shiftKey ? FINE_SEEK_STEP : SEEK_STEP;
+          activeHandlers.seek(activeHandlers.currentTime - step);
+        }
+        return;
+      }
+      if (code === SHORTCUTS.seekForward) {
+        event.preventDefault();
+        if (ctrl) {
+          activeHandlers.jumpTimedLine(1);
+        } else {
+          const step = event.shiftKey ? FINE_SEEK_STEP : SEEK_STEP;
+          activeHandlers.seek(activeHandlers.currentTime + step);
+        }
+        return;
+      }
+      if (code === SHORTCUTS.help && event.shiftKey) {
+        event.preventDefault();
+        activeHandlers.showHelp();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [latest]);
+}
