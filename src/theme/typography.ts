@@ -1,7 +1,7 @@
 /**
- * Brand type system (see brand/BRAND.md): a body face for running text/UI, and a
- * mono face for timestamps/shortcuts/data. The brand's display face (Unbounded) is
- * used only in marketing materials (brand/landing) — not in the app itself.
+ * Brand type system: a body face for running text/UI, and a mono face for
+ * timestamps/shortcuts/data. The brand's display face (Unbounded) is used only
+ * in marketing materials (see the website) - not in the app itself.
  */
 export const fontFamilies = {
   body: "'IBM Plex Sans', system-ui, Roboto, Helvetica, Arial, sans-serif",
