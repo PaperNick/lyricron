@@ -364,8 +364,13 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
         title={confirmState?.title ?? ''}
         message={confirmState?.message ?? ''}
         confirmLabel={confirmState?.confirmLabel ?? 'Confirm'}
+        secondaryLabel={confirmState?.secondaryLabel}
         onConfirm={() => {
           confirmState?.action();
+          setConfirmState(null);
+        }}
+        onSecondary={() => {
+          confirmState?.secondaryAction?.();
           setConfirmState(null);
         }}
         onCancel={() => setConfirmState(null)}
