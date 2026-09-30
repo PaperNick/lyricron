@@ -81,7 +81,10 @@ async function pasteIntoPlainField(page: Page, text: string) {
 }
 
 async function currentTime(page: Page) {
-  return page.evaluate(() => document.querySelector('audio')?.currentTime ?? -1);
+  return page.evaluate(() => {
+    const handle = (window as unknown as { __lyricron?: { getTime: () => number } }).__lyricron;
+    return handle?.getTime() ?? -1;
+  });
 }
 
 async function play(page: Page) {
@@ -100,11 +103,24 @@ async function timedStampCount(page: Page) {
 
 async function seekTo(page: Page, time: number) {
   await page.evaluate((value) => {
-    const audio = document.querySelector('audio');
-    if (audio) {
-      audio.currentTime = value;
-    }
+    const handle = (window as unknown as { __lyricron?: { seek: (time: number) => void } })
+      .__lyricron;
+    handle?.seek(value);
   }, time);
+}
+
+async function pausePlayback(page: Page) {
+  await page.evaluate(() => {
+    const handle = (window as unknown as { __lyricron?: { pause: () => void } }).__lyricron;
+    handle?.pause();
+  });
+}
+
+async function isPaused(page: Page) {
+  return page.evaluate(() => {
+    const handle = (window as unknown as { __lyricron?: { isPlaying: () => boolean } }).__lyricron;
+    return handle ? !handle.isPlaying() : false;
+  });
 }
 
 test.describe('lyricron', () => {
@@ -167,7 +183,7 @@ test.describe('lyricron', () => {
 
     await play(page);
     await page.getByRole('button', { name: 'Annotate' }).click();
-    await page.evaluate(() => document.querySelector('audio')?.pause());
+    await pausePlayback(page);
     await seekTo(page, 8);
     await page.waitForTimeout(150);
 
@@ -198,7 +214,7 @@ test.describe('lyricron', () => {
     // The blank gap is the next target rather than being skipped.
     await expect(page.getByTestId('next-line-banner').getByText('Blank line')).toBeVisible();
 
-    await page.evaluate(() => document.querySelector('audio')?.pause());
+    await pausePlayback(page);
     await seekTo(page, 8);
     await page.waitForTimeout(150);
     await expect(annotate).toBeEnabled();
@@ -221,7 +237,7 @@ test.describe('lyricron', () => {
 
     // The trailing blank line becomes the next target.
     await expect(page.getByTestId('next-line-banner').getByText('Blank line')).toBeVisible();
-    await page.evaluate(() => document.querySelector('audio')?.pause());
+    await pausePlayback(page);
     await seekTo(page, 25);
     await page.waitForTimeout(150);
     await expect(annotate).toBeEnabled();
@@ -269,8 +285,7 @@ test.describe('lyricron', () => {
     await page.getByRole('dialog').getByRole('button', { name: 'Clear' }).click();
 
     await expect(page.getByText('Enter Manually')).toBeVisible();
-    const paused = await page.evaluate(() => document.querySelector('audio')?.paused ?? false);
-    expect(paused).toBe(true);
+    expect(await isPaused(page)).toBe(true);
   });
 
   test('imports a plain .txt file from the Add lyrics screen', async ({ page }) => {
@@ -574,15 +589,12 @@ test.describe('lyricron', () => {
     await field.fill('00:07.00');
     await field.press('Enter');
 
-    await page.evaluate(() => document.querySelector('audio')?.pause());
+    await pausePlayback(page);
     await seekTo(page, 1);
     await page.waitForTimeout(150);
 
     await page.getByTestId('raw-list').getByText('Line one').click();
-    const currentTime = await page.evaluate(
-      () => document.querySelector('audio')?.currentTime ?? -1,
-    );
-    expect(currentTime).toBeCloseTo(7, 1);
+    expect(await currentTime(page)).toBeCloseTo(7, 1);
   });
 
   test('changes playback speed in 5% steps', async ({ page }) => {
@@ -632,12 +644,15 @@ test.describe('lyricron', () => {
     await annotate.click();
     await setStamp(1, '00:10.00');
 
-    await page.evaluate(() => document.querySelector('audio')?.pause());
+    await pausePlayback(page);
     await seekTo(page, 0);
     await page.waitForTimeout(150);
 
     const currentTime = () =>
-      page.evaluate(() => document.querySelector('audio')?.currentTime ?? -1);
+      page.evaluate(() => {
+        const handle = (window as unknown as { __lyricron?: { getTime: () => number } }).__lyricron;
+        return handle?.getTime() ?? -1;
+      });
 
     await page.keyboard.press('Control+ArrowRight');
     await expect.poll(currentTime).toBeCloseTo(5, 1);
@@ -710,10 +725,7 @@ test.describe('lyricron', () => {
 
     await preview.getByText('Line one').click();
     await page.waitForTimeout(200);
-    const currentTime = await page.evaluate(
-      () => document.querySelector('audio')?.currentTime ?? -1,
-    );
-    expect(currentTime).toBeLessThan(5);
+    expect(await currentTime(page)).toBeLessThan(5);
   });
 
   test('copies the generated LRC to the clipboard', async ({ page }) => {
