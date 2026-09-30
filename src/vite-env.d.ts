@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
 
+declare const __REVISION__: string;
+
 interface ImportMetaEnv {
   readonly VITE_SHORTCUT_PLAY_PAUSE?: string;
   readonly VITE_SHORTCUT_ANNOTATE?: string;
