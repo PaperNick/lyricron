@@ -16,4 +16,6 @@ export interface PendingConfirm {
   message: string;
   confirmLabel: string;
   action: () => void;
+  secondaryLabel?: string;
+  secondaryAction?: () => void;
 }

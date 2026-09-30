@@ -205,12 +205,17 @@ export function useProjectActions({
       setMobileTab('lyrics');
       player.loadFile(file);
     };
+    const keepExisting = () => {
+      player.loadFile(file);
+    };
     if (hasContent) {
       setConfirmState({
         title: 'Replace current project?',
         message:
           'This will discard the current audio, lyrics and timestamps and load the dropped file instead.',
         confirmLabel: 'Replace',
+        secondaryLabel: 'Use existing',
+        secondaryAction: keepExisting,
         action: start,
       });
       return;
