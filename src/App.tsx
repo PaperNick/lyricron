@@ -9,6 +9,7 @@ import { useFileDrop } from './modules/import/useFileDrop';
 import { useBeforeUnload } from './hooks/useBeforeUnload';
 import { useProjectPersistence } from './hooks/useProjectPersistence';
 import { useProjectActions } from './hooks/useProjectActions';
+import { useE2eHandle } from './hooks/useE2eHandle';
 import { hasLyrics } from './lib/plain';
 import { formatClock } from './lib/time';
 import { loadSavedLines, loadThemeMode, saveThemeMode } from './lib/storage';
@@ -65,10 +66,15 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
   const isMobile = useIsMobile();
   const [initialLines] = useState(loadSavedLines);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const player = useAudioPlayer(audioRef);
+  const [snackbar, setSnackbar] = useState<string | null>(null);
+  const handleFallback = useCallback(() => {
+    setSnackbar(
+      "This file couldn't be decoded in-browser, so a fallback player is used. Timing may drift on variable-bitrate audio.",
+    );
+  }, [setSnackbar]);
+  const player = useAudioPlayer(audioRef, handleFallback);
   const store = useAnnotationStore(initialLines);
 
-  const [snackbar, setSnackbar] = useState<string | null>(null);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [mobileTab, setMobileTab] = useState<MobileTab>('lyrics');
   const [lyricsReady, setLyricsReady] = useState(() => hasLyrics(initialLines));
@@ -243,6 +249,8 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
 
   useProjectPersistence(lines, player.fileName);
 
+  useE2eHandle(player);
+
   const {
     importFile,
     openImport,
@@ -303,6 +311,7 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
         nextIndex={nextIndex}
         canAnnotate={canAnnotate}
         annotateHint={annotateHint}
+        isDecoding={player.isDecoding}
         store={store}
         player={player}
         onShiftLine={shiftLine}
@@ -347,6 +356,12 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
         autoHideDuration={2500}
         onClose={() => setSnackbar(null)}
         message={snackbar ?? ''}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      />
+
+      <Snackbar
+        open={player.decodingVisible}
+        message="Decoding audio…"
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
 

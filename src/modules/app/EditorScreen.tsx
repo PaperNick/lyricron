@@ -25,6 +25,7 @@ interface Props {
   nextIndex: number;
   canAnnotate: boolean;
   annotateHint: string;
+  isDecoding: boolean;
   store: AnnotationStore;
   player: AudioPlayer;
   onShiftLine: (index: number, delta: number) => void;
@@ -50,6 +51,7 @@ export function EditorScreen({
   nextIndex,
   canAnnotate,
   annotateHint,
+  isDecoding,
   store,
   player,
   onShiftLine,
@@ -116,9 +118,10 @@ export function EditorScreen({
       )}
       <TransportBar
         isPlaying={player.isPlaying}
-        disabled={!hasAudio}
+        disabled={!hasAudio || isDecoding}
         canAnnotate={canAnnotate}
         annotateHint={annotateHint}
+        isDecoding={isDecoding}
         nextLineText={nextLineText}
         currentTime={player.currentTime}
         duration={player.duration}

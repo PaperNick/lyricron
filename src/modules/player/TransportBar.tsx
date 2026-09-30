@@ -59,6 +59,7 @@ interface Props {
   nextLineText: string | null;
   currentTime: number;
   duration: number;
+  isDecoding: boolean;
   markers: number[];
   playbackRate: number;
   onToggle: () => void;
@@ -78,6 +79,7 @@ export function TransportBar({
   nextLineText,
   currentTime,
   duration,
+  isDecoding,
   markers,
   playbackRate,
   onToggle,
@@ -174,6 +176,7 @@ export function TransportBar({
           <ProgressBar
             currentTime={currentTime}
             duration={duration}
+            isDecoding={isDecoding}
             disabled={disabled}
             markers={markers}
             onSeek={onSeek}
@@ -291,6 +294,7 @@ export function TransportBar({
           <ProgressBar
             currentTime={currentTime}
             duration={duration}
+            isDecoding={isDecoding}
             disabled={disabled}
             markers={markers}
             onSeek={onSeek}
