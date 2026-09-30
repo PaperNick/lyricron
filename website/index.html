@@ -888,6 +888,18 @@
         color: var(--text-faint);
       }
 
+      .foot-rev {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        color: var(--text-faint);
+        text-decoration: none;
+        transition: color 0.15s ease;
+      }
+
+      .foot-rev:hover {
+        color: var(--text);
+      }
+
       .foot-links {
         display: flex;
         gap: 22px;
@@ -975,12 +987,7 @@
               />
             </svg>
           </a>
-          <a
-            class="kofi-badge"
-            href="https://ko-fi.com/papernick"
-            target="_blank"
-            rel="noreferrer"
-          >
+          <a class="kofi-badge" href="https://ko-fi.com/papernick" target="_blank" rel="noreferrer">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -1301,12 +1308,7 @@
               support ongoing development.
             </p>
           </div>
-          <a
-            class="kofi-btn"
-            href="https://ko-fi.com/papernick"
-            target="_blank"
-            rel="noreferrer"
-          >
+          <a class="kofi-btn" href="https://ko-fi.com/papernick" target="_blank" rel="noreferrer">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -1357,6 +1359,7 @@
           </svg>
           <span class="foot-note">Lyricron. 100% private, works offline.</span>
         </a>
+        <span hidden>__REVISION__</span>
         <div class="foot-links">
           <a href="#how-it-works">How it works</a>
           <a href="#features">Features</a>

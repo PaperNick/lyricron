@@ -76,4 +76,3 @@ Unit tests cover the pure logic in `src/lib`, and end-to-end tests drive the ful
 ## Privacy
 
 Lyricron never sends your audio, lyrics, or timestamps anywhere. It is a static single-page app with no backend, no analytics, and no external requests (fonts are bundled locally).
-
