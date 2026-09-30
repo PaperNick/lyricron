@@ -1,4 +1,5 @@
 import { memo, useEffect, useRef } from 'react';
+import type { ReactElement } from 'react';
 import { IconButton, Tooltip } from '@mui/material';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 import CloseIcon from '@mui/icons-material/Close';
@@ -21,6 +22,15 @@ interface Props {
   onSeekLine: (index: number) => void;
   onSetTimeToNow: (index: number) => void;
   onHoverLine: (index: number | null) => void;
+}
+
+/** Left-anchored tooltip for per-row icon buttons. */
+function RowActionTooltip({ title, children }: { title: string; children: ReactElement }) {
+  return (
+    <Tooltip title={title} placement="left">
+      <TooltipTarget>{children}</TooltipTarget>
+    </Tooltip>
+  );
 }
 
 export const RawLyricsList = memo(function RawLyricsList({
@@ -90,54 +100,46 @@ export const RawLyricsList = memo(function RawLyricsList({
               <>
                 {line.time !== null && (
                   <>
-                    <Tooltip title="Shift −50 ms">
-                      <TooltipTarget>
-                        <IconButton
-                          size="small"
-                          onClick={() => onShift(index, -0.05)}
-                          aria-label="Shift -50 ms"
-                        >
-                          <RemoveIcon fontSize="inherit" />
-                        </IconButton>
-                      </TooltipTarget>
-                    </Tooltip>
-                    <Tooltip title="Shift +50 ms">
-                      <TooltipTarget>
-                        <IconButton
-                          size="small"
-                          onClick={() => onShift(index, 0.05)}
-                          aria-label="Shift +50 ms"
-                        >
-                          <AddIcon fontSize="inherit" />
-                        </IconButton>
-                      </TooltipTarget>
-                    </Tooltip>
-                  </>
-                )}
-                <Tooltip title="Set to current time">
-                  <TooltipTarget>
-                    <IconButton
-                      size="small"
-                      disabled={!canSetTime}
-                      onClick={() => onSetTimeToNow(index)}
-                      aria-label="Set to current time"
-                    >
-                      <MyLocationIcon fontSize="inherit" />
-                    </IconButton>
-                  </TooltipTarget>
-                </Tooltip>
-                {line.time !== null && (
-                  <Tooltip title="Delete timestamp">
-                    <TooltipTarget>
+                    <RowActionTooltip title="Shift −50 ms">
                       <IconButton
                         size="small"
-                        onClick={() => onClearTime(index)}
-                        aria-label="Delete timestamp"
+                        onClick={() => onShift(index, -0.05)}
+                        aria-label="Shift -50 ms"
                       >
-                        <CloseIcon fontSize="inherit" />
+                        <RemoveIcon fontSize="inherit" />
                       </IconButton>
-                    </TooltipTarget>
-                  </Tooltip>
+                    </RowActionTooltip>
+                    <RowActionTooltip title="Shift +50 ms">
+                      <IconButton
+                        size="small"
+                        onClick={() => onShift(index, 0.05)}
+                        aria-label="Shift +50 ms"
+                      >
+                        <AddIcon fontSize="inherit" />
+                      </IconButton>
+                    </RowActionTooltip>
+                  </>
+                )}
+                <RowActionTooltip title="Set to current time">
+                  <IconButton
+                    size="small"
+                    disabled={!canSetTime}
+                    onClick={() => onSetTimeToNow(index)}
+                    aria-label="Set to current time"
+                  >
+                    <MyLocationIcon fontSize="inherit" />
+                  </IconButton>
+                </RowActionTooltip>
+                {line.time !== null && (
+                  <RowActionTooltip title="Delete timestamp">
+                    <IconButton
+                      size="small"
+                      onClick={() => onClearTime(index)}
+                      aria-label="Delete timestamp"
+                    >
+                      <CloseIcon fontSize="inherit" />
+                    </IconButton>
+                  </RowActionTooltip>
                 )}
               </>
             )}

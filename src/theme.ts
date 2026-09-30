@@ -61,6 +61,15 @@ export function createAppTheme(mode: PaletteMode) {
           contained: { boxShadow: 'none', '&:hover': { boxShadow: 'none' } },
         },
       },
+      MuiTooltip: {
+        defaultProps: {
+          // Keep tooltips from intercepting clicks aimed behind them.
+          disableInteractive: true,
+          // Avoid flicker when sweeping across controls.
+          enterDelay: 400,
+          leaveDelay: 0,
+        },
+      },
     },
   });
 }
