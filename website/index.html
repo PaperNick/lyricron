@@ -793,9 +793,21 @@
       }
 
       .install-actions {
-        display: flex;
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: 1fr;
         gap: 12px;
-        flex-wrap: wrap;
+      }
+
+      @media (max-width: 560px) {
+        .install-actions {
+          grid-auto-flow: row;
+          width: 100%;
+        }
+
+        .install-actions .btn {
+          width: 100%;
+        }
       }
 
       .install-panel pre {
