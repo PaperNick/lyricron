@@ -13,7 +13,10 @@ const playPause = shortcutLabel(SHORTCUTS.playPause);
 const annotate = shortcutLabel(SHORTCUTS.annotate);
 const undo = shortcutLabel(SHORTCUTS.undo);
 const shift = `${shortcutLabel(SHORTCUTS.shiftEarlier)} / ${shortcutLabel(SHORTCUTS.shiftLater)}`;
+const ctrlActive = `Ctrl/⌘ + ${shortcutLabel(SHORTCUTS.shiftEarlier)} / ${shortcutLabel(SHORTCUTS.shiftLater)}`;
 const deleteLast = shortcutLabel(SHORTCUTS.deleteLast);
+const deleteActive = `Ctrl/⌘ + ${shortcutLabel(SHORTCUTS.deleteLast)}`;
+const setActive = `Ctrl/⌘ + ${shortcutLabel(SHORTCUTS.annotate)}`;
 const seek = `${shortcutLabel(SHORTCUTS.seekBack)} / ${shortcutLabel(SHORTCUTS.seekForward)}`;
 const seekLine = `Ctrl/⌘ + ${shortcutLabel(SHORTCUTS.seekBack)} / ${shortcutLabel(SHORTCUTS.seekForward)}`;
 const help = '?';
@@ -30,6 +33,9 @@ const SHORTCUTS_LIST: [string, string][] = [
   ['Ctrl/⌘ + Y', 'Redo'],
   [shift, 'Shift the last line −50 ms / +50 ms'],
   [deleteLast, 'Delete the last timestamp'],
+  [ctrlActive, 'Shift the highlighted line −50 ms / +50 ms'],
+  [deleteActive, "Delete the highlighted line's timestamp"],
+  [setActive, 'Set the highlighted line to the current time'],
   [help, 'Show this help'],
 ];
 

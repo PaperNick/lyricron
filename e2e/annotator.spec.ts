@@ -109,6 +109,14 @@ async function seekTo(page: Page, time: number) {
   }, time);
 }
 
+/** Types a timestamp into a row's inline editor and commits it. */
+async function setStamp(page: Page, index: number, value: string) {
+  await stampButtons(page).nth(index).click();
+  const field = page.locator('input:not([type])').first();
+  await field.fill(value);
+  await field.press('Enter');
+}
+
 async function pausePlayback(page: Page) {
   await page.evaluate(() => {
     const handle = (window as unknown as { __lyricron?: { pause: () => void } }).__lyricron;
@@ -897,6 +905,60 @@ test.describe('lyricron', () => {
 
     await page.keyboard.press('[');
     await expect(stampButtons(page).first()).toHaveText('00:05.00');
+  });
+
+  test('shifts the highlighted line with Ctrl+[ and Ctrl+]', async ({ page }) => {
+    await loadAudio(page);
+    await pasteLyrics(page, ['Line one', 'Line two']);
+    await play(page);
+    await pausePlayback(page);
+
+    await setStamp(page, 0, '00:05.00');
+    await setStamp(page, 1, '00:10.00');
+    await page.locator('textarea:not([readonly])').blur();
+    await seekTo(page, 6);
+    await page.waitForTimeout(150);
+
+    await page.keyboard.press('Control+]');
+    await expect(stampButtons(page).nth(0)).toHaveText('00:05.05');
+    await expect(stampButtons(page).nth(1)).toHaveText('00:10.00');
+
+    await page.keyboard.press('Control+[');
+    await expect(stampButtons(page).nth(0)).toHaveText('00:05.00');
+  });
+
+  test('deletes the highlighted timestamp with Ctrl+Delete', async ({ page }) => {
+    await loadAudio(page);
+    await pasteLyrics(page, ['Line one', 'Line two']);
+    await play(page);
+    await pausePlayback(page);
+
+    await setStamp(page, 0, '00:05.00');
+    await setStamp(page, 1, '00:10.00');
+    await page.locator('textarea:not([readonly])').blur();
+    await seekTo(page, 6);
+    await page.waitForTimeout(150);
+
+    await page.keyboard.press('Control+Delete');
+    await expect(stampButtons(page).nth(0)).toHaveText('--:--.--');
+    await expect(stampButtons(page).nth(1)).toHaveText('00:10.00');
+  });
+
+  test('sets the highlighted line to the current time with Ctrl+Enter', async ({ page }) => {
+    await loadAudio(page);
+    await pasteLyrics(page, ['Line one', 'Line two']);
+    await play(page);
+    await pausePlayback(page);
+
+    await setStamp(page, 0, '00:05.00');
+    await setStamp(page, 1, '00:10.00');
+    await page.locator('textarea:not([readonly])').blur();
+    await seekTo(page, 6);
+    await page.waitForTimeout(150);
+
+    await page.keyboard.press('Control+Enter');
+    await expect(stampButtons(page).nth(0)).toHaveText('00:06.00');
+    await expect(stampButtons(page).nth(1)).toHaveText('00:10.00');
   });
 
   test('undoes and redoes with Ctrl+Z / Ctrl+Shift+Z', async ({ page }) => {

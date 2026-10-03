@@ -277,6 +277,10 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
     seek: player.seek,
     currentTime: player.currentTime,
     showHelp: () => setShortcutsOpen(true),
+    activeIndex,
+    shiftLine,
+    deleteLine: store.clearTime,
+    setTimeToNow,
   });
 
   useProjectPersistence(lines, player.fileName);

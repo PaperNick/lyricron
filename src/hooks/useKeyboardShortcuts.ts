@@ -17,6 +17,11 @@ export interface ShortcutHandlers {
   seek: (time: number) => void;
   currentTime: number;
   showHelp: () => void;
+  /** Index of the highlighted line, or -1 when none is active. */
+  activeIndex: number;
+  shiftLine: (index: number, delta: number) => void;
+  deleteLine: (index: number) => void;
+  setTimeToNow: (index: number) => void;
 }
 
 const isEditableTarget = (target: EventTarget | null): boolean => {
@@ -62,7 +67,14 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
       }
       if (code === SHORTCUTS.annotate) {
         event.preventDefault();
-        activeHandlers.annotate();
+        if (ctrl) {
+          const index = activeHandlers.activeIndex;
+          if (index !== -1) {
+            activeHandlers.setTimeToNow(index);
+          }
+        } else {
+          activeHandlers.annotate();
+        }
         return;
       }
       if (code === SHORTCUTS.undo) {
@@ -71,16 +83,37 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
         return;
       }
       if (code === SHORTCUTS.shiftEarlier) {
-        activeHandlers.shiftLast(-SHIFT_STEP);
+        const index = activeHandlers.activeIndex;
+        if (ctrl) {
+          if (index !== -1) {
+            activeHandlers.shiftLine(index, -SHIFT_STEP);
+          }
+        } else {
+          activeHandlers.shiftLast(-SHIFT_STEP);
+        }
         return;
       }
       if (code === SHORTCUTS.shiftLater) {
-        activeHandlers.shiftLast(SHIFT_STEP);
+        const index = activeHandlers.activeIndex;
+        if (ctrl) {
+          if (index !== -1) {
+            activeHandlers.shiftLine(index, SHIFT_STEP);
+          }
+        } else {
+          activeHandlers.shiftLast(SHIFT_STEP);
+        }
         return;
       }
       if (code === SHORTCUTS.deleteLast) {
         event.preventDefault();
-        activeHandlers.deleteLast();
+        const index = activeHandlers.activeIndex;
+        if (ctrl) {
+          if (index !== -1) {
+            activeHandlers.deleteLine(index);
+          }
+        } else {
+          activeHandlers.deleteLast();
+        }
         return;
       }
       if (code === SHORTCUTS.seekBack) {
