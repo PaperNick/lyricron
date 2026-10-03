@@ -1,4 +1,5 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText } from '@mui/material';
+import { Button, DialogActions, DialogContent, DialogContentText } from '@mui/material';
+import { AppDialog } from '../app/AppDialog';
 import { Header } from '../app/ConfirmDialog.styles';
 
 interface Props {
@@ -10,7 +11,7 @@ interface Props {
 
 export function LrcPasteDialog({ open, onReplace, onConvert, onCancel }: Props) {
   return (
-    <Dialog
+    <AppDialog
       open={open}
       onClose={onCancel}
       aria-labelledby="lrc-paste-dialog-title"
@@ -29,6 +30,6 @@ export function LrcPasteDialog({ open, onReplace, onConvert, onCancel }: Props) 
           Use timed
         </Button>
       </DialogActions>
-    </Dialog>
+    </AppDialog>
   );
 }

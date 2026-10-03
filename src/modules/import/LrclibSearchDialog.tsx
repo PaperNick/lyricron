@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
   CircularProgress,
-  Dialog,
   DialogContent,
   IconButton,
   InputAdornment,
@@ -10,6 +9,7 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
+import { AppDialog } from '../app/AppDialog';
 import { searchLrclib, filenameToQuery } from '../../lib/lrclib';
 import type { LrclibResult, LrclibSelection } from '../../lib/lrclib';
 import { formatClock } from '../../lib/time';
@@ -113,7 +113,7 @@ export function LrclibSearchDialog({ open, onClose, onSelect, fileName }: Props)
   const hasQuery = trimmed.length >= 2;
 
   return (
-    <Dialog open={open} onClose={close} maxWidth="sm" fullWidth>
+    <AppDialog open={open} onClose={close} maxWidth="sm" fullWidth>
       <Header>
         Search lyrics on LRCLIB
         <IconButton onClick={close} size="small" aria-label="Close">
@@ -206,6 +206,6 @@ export function LrclibSearchDialog({ open, onClose, onSelect, fileName }: Props)
           )}
         </Results>
       </DialogContent>
-    </Dialog>
+    </AppDialog>
   );
 }

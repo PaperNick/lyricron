@@ -1,12 +1,6 @@
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  IconButton,
-} from '@mui/material';
+import { Button, DialogActions, DialogContent, DialogContentText, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { AppDialog } from './AppDialog';
 import { Header } from './ConfirmDialog.styles';
 
 interface Props {
@@ -31,7 +25,7 @@ export function ConfirmDialog({
   onCancel,
 }: Props) {
   return (
-    <Dialog
+    <AppDialog
       open={open}
       onClose={onCancel}
       aria-labelledby="confirm-dialog-title"
@@ -62,6 +56,6 @@ export function ConfirmDialog({
           </Button>
         ) : null}
       </DialogActions>
-    </Dialog>
+    </AppDialog>
   );
 }

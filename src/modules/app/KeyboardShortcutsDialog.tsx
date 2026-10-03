@@ -1,5 +1,6 @@
-import { Dialog, DialogContent, IconButton, Stack } from '@mui/material';
+import { DialogContent, IconButton, Stack } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { AppDialog } from './AppDialog';
 import { SHORTCUTS, shortcutLabel } from '../../config/shortcuts';
 import { Description, Header, Key, Row } from './KeyboardShortcutsDialog.styles';
 
@@ -32,7 +33,7 @@ const SHORTCUTS_LIST: [string, string][] = [
 
 export function KeyboardShortcutsDialog({ open, onClose }: Props) {
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+    <AppDialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <Header>
         Keyboard shortcuts
         <IconButton onClick={onClose} size="small" aria-label="Close">
@@ -51,6 +52,6 @@ export function KeyboardShortcutsDialog({ open, onClose }: Props) {
           ))}
         </Stack>
       </DialogContent>
-    </Dialog>
+    </AppDialog>
   );
 }
