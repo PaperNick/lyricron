@@ -17,6 +17,7 @@ import { LrclibSearchDialog } from './modules/import/LrclibSearchDialog';
 import { ConfirmDialog } from './modules/app/ConfirmDialog';
 import { LrcPasteDialog } from './modules/import/LrcPasteDialog';
 import { KeyboardShortcutsDialog } from './modules/app/KeyboardShortcutsDialog';
+import { ExportDialog } from './modules/app/ExportDialog';
 import { TopBar } from './modules/app/TopBar';
 import { UploadScreen } from './modules/app/UploadScreen';
 import { ChooseScreen } from './modules/app/ChooseScreen';
@@ -86,6 +87,7 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
   const store = useAnnotationStore(initialLines);
 
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
   const [mobileTab, setMobileTab] = useState<MobileTab>('lyrics');
   const [lyricsReady, setLyricsReady] = useState(() => hasLyrics(initialLines));
   const [lrclibOpen, setLrclibOpen] = useState(false);
@@ -296,7 +298,7 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
     importFile,
     openImport,
     selectLrclib,
-    exportLrc,
+    exportLyrics,
     copyPlain,
     copyTimed,
     applyPastedLrc,
@@ -387,7 +389,7 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
         onRedo={store.redo}
         onShowShortcuts={() => setShortcutsOpen(true)}
         onCycleTheme={onCycleTheme}
-        onExport={exportLrc}
+        onExport={() => setExportOpen(true)}
         onReset={reset}
         onImportFile={importFile}
       />
@@ -408,6 +410,15 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
       />
 
       <KeyboardShortcutsDialog open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+
+      <ExportDialog
+        open={exportOpen}
+        onClose={() => setExportOpen(false)}
+        onExport={(format) => {
+          exportLyrics(format);
+          setExportOpen(false);
+        }}
+      />
 
       <LrclibSearchDialog
         open={lrclibOpen}

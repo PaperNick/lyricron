@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
 import type { LrclibResult } from '../src/lib/lrclib';
 
 const SAMPLE_RATE = 8000;
@@ -315,6 +316,46 @@ test.describe('lyricron', () => {
     await expect(page.getByTestId('raw-list').getByText('Plain line two')).toBeVisible();
   });
 
+  test('imports an .srt file and rebuilds cue ends on export', async ({ page }) => {
+    await page.goto('/');
+    await page.setInputFiles('input[type="file"][accept*="audio"]', AUDIO);
+    await expect(page.getByText('Import File')).toBeVisible();
+
+    const [chooser] = await Promise.all([
+      page.waitForEvent('filechooser'),
+      page.getByText('Import File').click(),
+    ]);
+    // The end times (07 and 20) are intentionally never used by the import.
+    await chooser.setFiles({
+      name: 'lyrics.srt',
+      mimeType: 'application/x-subrip',
+      buffer: Buffer.from(
+        '1\n00:00:05,000 --> 00:00:07,000\nHello\nworld\n\n2\n00:00:10,000 --> 00:00:20,000\nSecond line\n',
+      ),
+    });
+
+    // Only start times survive, wrapped cue text is flattened, and the final
+    // cue's end becomes a trailing blank line.
+    await expect(stampButtons(page).nth(0)).toHaveText('00:05.00');
+    await expect(stampButtons(page).nth(1)).toHaveText('00:10.00');
+    await expect(stampButtons(page).nth(2)).toHaveText('00:20.00');
+    await expect(page.getByTestId('raw-list').getByText('Hello world')).toBeVisible();
+    await expect(page.getByTestId('raw-list').getByText('Blank line')).toBeVisible();
+
+    // Export ends cues at the next boundary; the trailing blank gives the last
+    // cue its real end (20 s) instead of the +2 s fallback.
+    await page.getByRole('button', { name: 'Export' }).click();
+    const dialog = page.getByRole('dialog');
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      dialog.getByRole('button', { name: /SRT/ }).click(),
+    ]);
+    const content = await readFile((await download.path()) as string, 'utf8');
+    expect(content).toBe(
+      '1\n00:00:05,000 --> 00:00:10,000\nHello world\n\n2\n00:00:10,000 --> 00:00:20,000\nSecond line',
+    );
+  });
+
   test('confirms before importing over existing lyrics', async ({ page }) => {
     await loadAudio(page);
     await pasteLyrics(page, ['My own line']);
@@ -325,7 +366,7 @@ test.describe('lyricron', () => {
       buffer: Buffer.from('[00:05.00]Imported line\n'),
     };
 
-    await page.setInputFiles('input[accept=".lrc,.txt,text/plain"]', importFile);
+    await page.setInputFiles('input[accept*=".lrc"]', importFile);
     await expect(page.getByText('Replace existing lyrics?')).toBeVisible();
 
     // Cancel keeps the existing lyrics.
@@ -333,7 +374,7 @@ test.describe('lyricron', () => {
     await expect(page.getByTestId('raw-list').getByText('My own line')).toBeVisible();
 
     // Replace loads the imported file.
-    await page.setInputFiles('input[accept=".lrc,.txt,text/plain"]', importFile);
+    await page.setInputFiles('input[accept*=".lrc"]', importFile);
     await page.getByRole('dialog').getByRole('button', { name: 'Replace' }).click();
     await expect(page.getByTestId('raw-list').getByText('Imported line')).toBeVisible();
   });
@@ -531,7 +572,7 @@ test.describe('lyricron', () => {
 
   test('leaves an inserted blank untimed when there is no room for it', async ({ page }) => {
     await loadAudio(page);
-    await page.setInputFiles('input[accept=".lrc,.txt,text/plain"]', {
+    await page.setInputFiles('input[accept*=".lrc"]', {
       name: 'song.lrc',
       mimeType: 'text/plain',
       buffer: Buffer.from('[00:05.00]Line one\n[00:05.01]Line two\n'),
@@ -759,18 +800,39 @@ test.describe('lyricron', () => {
     expect(clipboard).toBe('Line one\nLine two');
   });
 
-  test('exports an .lrc download', async ({ page }) => {
+  test('exports an .lrc download from the export dialog', async ({ page }) => {
     await loadAudio(page);
     await pasteLyrics(page, ['Line one', 'Line two']);
 
     await play(page);
     await page.getByRole('button', { name: 'Annotate' }).click();
 
+    await page.getByRole('button', { name: 'Export' }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog.getByText('Export lyrics')).toBeVisible();
+
     const [download] = await Promise.all([
       page.waitForEvent('download'),
-      page.getByRole('button', { name: 'Export' }).click(),
+      dialog.getByRole('button', { name: /LRC/ }).click(),
     ]);
     expect(download.suggestedFilename()).toMatch(/\.lrc$/);
+  });
+
+  test('exports an .srt download from the export dialog', async ({ page }) => {
+    await loadAudio(page);
+    await pasteLyrics(page, ['Line one', 'Line two']);
+
+    await play(page);
+    await page.getByRole('button', { name: 'Annotate' }).click();
+
+    await page.getByRole('button', { name: 'Export' }).click();
+    const dialog = page.getByRole('dialog');
+
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      dialog.getByRole('button', { name: /SRT/ }).click(),
+    ]);
+    expect(download.suggestedFilename()).toMatch(/\.srt$/);
   });
 
   test('confirms before leaving the page while editing', async ({ page }) => {

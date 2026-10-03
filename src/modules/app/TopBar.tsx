@@ -159,7 +159,7 @@ export function TopBar({
                 <ListItemIcon>
                   <FileDownloadIcon fontSize="small" />
                 </ListItemIcon>
-                <ListItemText>Export .lrc</ListItemText>
+                <ListItemText>Export</ListItemText>
               </MenuItem>
               <Divider />
               <MenuItem disabled={!inEditor || !hasContent} onClick={() => runMenuAction(onReset)}>
@@ -198,7 +198,7 @@ export function TopBar({
               </IconButton>
             </Tooltip>
             <NavDivider />
-            <Tooltip title="Download the generated .lrc">
+            <Tooltip title="Export timed lyrics">
               <TooltipTarget>
                 <Button
                   startIcon={<FileDownloadIcon />}
@@ -226,7 +226,7 @@ export function TopBar({
         <input
           ref={importInputRef}
           type="file"
-          accept=".lrc,.txt,text/plain"
+          accept=".lrc,.txt,.srt,text/plain"
           hidden
           onChange={(event) => {
             onImportFile(event.target.files?.[0]);

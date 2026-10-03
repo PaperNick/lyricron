@@ -36,7 +36,7 @@ export function ChooseScreen({ onManual, onSearch, onImport }: Props) {
           <ActionCard
             icon={<ImportCardIcon color="primary" />}
             title="Import File"
-            description="Load lyrics from an .lrc or .txt file."
+            description="Load lyrics from an .lrc, .srt or .txt file."
             onClick={onImport}
           />
         </ActionCards>

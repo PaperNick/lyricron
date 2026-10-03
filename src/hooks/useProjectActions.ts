@@ -1,10 +1,11 @@
 import type { RefObject } from 'react';
-import type { LyricLine, MobileTab, PendingConfirm } from '../types';
+import type { ExportFormat, LyricLine, MobileTab, PendingConfirm } from '../types';
 import type { AnnotationStore } from '../modules/editor/useAnnotationStore';
 import type { AudioPlayer } from '../modules/player/useAudioPlayer';
 import type { LrclibSelection } from '../lib/lrclib';
 import { hasLyrics, linesToText, textToLines } from '../lib/plain';
 import { lrcToPlainText, parseLrc, serializeLrc } from '../lib/lrc';
+import { parseSrt, serializeSrt } from '../lib/srt';
 import { isPlayableMedia } from '../lib/media';
 
 interface ProjectActionsOptions {
@@ -24,7 +25,7 @@ export interface ProjectActions {
   importFile: (file: File | undefined) => void;
   openImport: () => void;
   selectLrclib: (selection: LrclibSelection) => void;
-  exportLrc: () => void;
+  exportLyrics: (format: ExportFormat) => void;
   copyPlain: () => void;
   copyTimed: () => void;
   applyPastedLrc: (text: string) => void;
@@ -61,7 +62,8 @@ export function useProjectActions({
       return;
     }
     const text = await file.text();
-    const timed = parseLrc(text);
+    const lrc = parseLrc(text);
+    const timed = lrc.length > 0 ? lrc : parseSrt(text);
     const imported = timed.length > 0 ? timed : textToLines(text.trim());
     if (timed.length === 0 && !hasLyrics(imported)) {
       setSnackbar('No lyrics found in that file');
@@ -121,15 +123,22 @@ export function useProjectActions({
     applyLrclibSelection(selection);
   };
 
-  const exportLrc = () => {
-    const content = serializeLrc(store.lines);
+  const download = (content: string, extension: string) => {
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = `${(player.fileName ?? 'lyrics').replace(/\.[^.]+$/, '')}.lrc`;
+    anchor.download = `${(player.fileName ?? 'lyrics').replace(/\.[^.]+$/, '')}.${extension}`;
     anchor.click();
     URL.revokeObjectURL(url);
+  };
+
+  const exportLyrics = (format: ExportFormat) => {
+    if (format === 'srt') {
+      download(serializeSrt(store.lines), 'srt');
+    } else {
+      download(serializeLrc(store.lines), 'lrc');
+    }
   };
 
   const copyPlain = async () => {
@@ -227,7 +236,7 @@ export function useProjectActions({
     importFile,
     openImport,
     selectLrclib,
-    exportLrc,
+    exportLyrics,
     copyPlain,
     copyTimed,
     applyPastedLrc,

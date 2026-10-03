@@ -21,6 +21,8 @@ export interface SavedProject {
 
 export type MobileTab = 'lyrics' | 'timed';
 
+export type ExportFormat = 'lrc' | 'srt';
+
 export interface PendingConfirm {
   title: string;
   message: string;
