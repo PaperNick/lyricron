@@ -192,8 +192,13 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
       }
       store.setTime(index, next);
       triggerPulse(index, delta < 0 ? 'earlier' : 'later');
+      // Keep the playhead on the line when a nudge pushes it past it.
+      const current = player.currentTime;
+      if (time <= current && next > current) {
+        player.seek(next);
+      }
     },
-    [store, triggerPulse],
+    [store, player, triggerPulse],
   );
 
   const shiftLast = useCallback(

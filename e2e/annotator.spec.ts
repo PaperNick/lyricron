@@ -927,6 +927,35 @@ test.describe('lyricron', () => {
     await expect(stampButtons(page).nth(0)).toHaveText('00:05.00');
   });
 
+  test('keeps the highlighted line selected when nudged past the playhead', async ({ page }) => {
+    await loadAudio(page);
+    await pasteLyrics(page, ['Line one', 'Line two', 'Line three']);
+    await play(page);
+    await pausePlayback(page);
+
+    await setStamp(page, 0, '00:05.00');
+    await setStamp(page, 1, '00:10.00');
+    await setStamp(page, 2, '00:15.00');
+    await page.locator('textarea:not([readonly])').blur();
+    await seekTo(page, 6);
+    await page.waitForTimeout(150);
+
+    // Jump to the second line, then nudge it later twice with the keyboard.
+    await page.keyboard.press('Control+ArrowRight');
+    await page.waitForTimeout(150);
+    await page.keyboard.press('Control+]');
+    await page.keyboard.press('Control+]');
+    await expect(stampButtons(page).nth(1)).toHaveText('00:10.10');
+
+    // The row's +50 ms button keeps the same line highlighted too.
+    await page.getByRole('button', { name: 'Shift +50 ms' }).nth(1).click();
+    await page.keyboard.press('Control+]');
+    await expect(stampButtons(page).nth(1)).toHaveText('00:10.20');
+
+    await expect(stampButtons(page).nth(0)).toHaveText('00:05.00');
+    await expect(stampButtons(page).nth(2)).toHaveText('00:15.00');
+  });
+
   test('deletes the highlighted timestamp with Ctrl+Delete', async ({ page }) => {
     await loadAudio(page);
     await pasteLyrics(page, ['Line one', 'Line two']);
