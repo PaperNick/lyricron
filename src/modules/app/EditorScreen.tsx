@@ -1,4 +1,4 @@
-import type { LyricLine, MobileTab } from '../../types';
+import type { LinePulse, LyricLine, MobileTab } from '../../types';
 import type { AnnotationStore } from '../editor/useAnnotationStore';
 import type { AudioPlayer } from '../player/useAudioPlayer';
 import { PlainLyricsPane } from '../editor/PlainLyricsPane';
@@ -23,6 +23,7 @@ interface Props {
   hoveredIndex: number | null;
   activeIndex: number;
   nextIndex: number;
+  pulse: LinePulse | null;
   canAnnotate: boolean;
   annotateHint: string;
   isDecoding: boolean;
@@ -49,6 +50,7 @@ export function EditorScreen({
   hoveredIndex,
   activeIndex,
   nextIndex,
+  pulse,
   canAnnotate,
   annotateHint,
   isDecoding,
@@ -82,6 +84,7 @@ export function EditorScreen({
       currentTime={player.currentTime}
       nextIndex={nextIndex}
       activeIndex={activeIndex}
+      pulse={pulse}
       canSetTime={player.hasStarted}
       onEditTime={store.setTime}
       onClearTime={store.clearTime}

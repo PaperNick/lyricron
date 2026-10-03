@@ -4,7 +4,7 @@ import { Tooltip } from '@mui/material';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
-import type { LyricLine } from '../../types';
+import type { LinePulse, LyricLine } from '../../types';
 import { TimestampInput } from './TimestampInput';
 import { LineActionsMenu } from './LineActionsMenu';
 import { useIsMobile } from '../../hooks/useIsMobile';
@@ -15,6 +15,7 @@ interface Props {
   lines: LyricLine[];
   nextIndex: number;
   activeIndex: number;
+  pulse: LinePulse | null;
   canSetTime: boolean;
   onEditTime: (index: number, time: number) => void;
   onClearTime: (index: number) => void;
@@ -37,6 +38,7 @@ export const RawLyricsList = memo(function RawLyricsList({
   lines,
   nextIndex,
   activeIndex,
+  pulse,
   canSetTime,
   onEditTime,
   onClearTime,
@@ -77,6 +79,7 @@ export const RawLyricsList = memo(function RawLyricsList({
               time={line.time}
               onCommit={(time) => onEditTime(index, time)}
               onClear={() => onClearTime(index)}
+              pulse={pulse && pulse.index === index ? pulse : null}
             />
             <LineText
               variant="body2"

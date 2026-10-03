@@ -1,14 +1,21 @@
 import { useEffect, useRef, useState } from 'react';
+import type { LinePulse } from '../../types';
 import { formatLrcTime, parseTimeInput } from '../../lib/time';
-import { TimestampButton, TimestampField } from './TimestampInput.styles';
+import {
+  TimestampButton,
+  TimestampField,
+  TimestampPulse,
+  TimestampWrap,
+} from './TimestampInput.styles';
 
 interface Props {
   time: number | null;
   onCommit: (time: number) => void;
   onClear: () => void;
+  pulse?: LinePulse | null;
 }
 
-export function TimestampInput({ time, onCommit, onClear }: Props) {
+export function TimestampInput({ time, onCommit, onClear, pulse }: Props) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -55,13 +62,16 @@ export function TimestampInput({ time, onCommit, onClear }: Props) {
   }
 
   return (
-    <TimestampButton
-      type="button"
-      onClick={startEditing}
-      title="Click to edit the timestamp"
-      $empty={time === null}
-    >
-      {time === null ? '--:--.--' : formatLrcTime(time)}
-    </TimestampButton>
+    <TimestampWrap>
+      <TimestampButton
+        type="button"
+        onClick={startEditing}
+        title="Click to edit the timestamp"
+        $empty={time === null}
+      >
+        {time === null ? '--:--.--' : formatLrcTime(time)}
+      </TimestampButton>
+      {pulse && <TimestampPulse key={pulse.nonce} $direction={pulse.direction} />}
+    </TimestampWrap>
   );
 }

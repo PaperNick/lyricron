@@ -4,6 +4,16 @@ export interface LyricLine {
   time: number | null;
 }
 
+export type LinePulseDirection = 'earlier' | 'later' | 'now';
+
+/** Transient highlight shown on a timestamp after an action changes it. */
+export interface LinePulse {
+  index: number;
+  direction: LinePulseDirection;
+  /** Bumped per action so repeating one direction retriggers the animation. */
+  nonce: number;
+}
+
 export interface SavedProject {
   audioName: string | null;
   lines: LyricLine[];

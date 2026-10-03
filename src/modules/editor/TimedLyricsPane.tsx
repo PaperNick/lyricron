@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ToggleButton } from '@mui/material';
-import type { LyricLine } from '../../types';
+import type { LinePulse, LyricLine } from '../../types';
 import { RawLyricsList } from './RawLyricsList';
 import { PreviewPane } from './PreviewPane';
 import { PaneRoot } from './Pane.styles';
@@ -15,6 +15,7 @@ interface Props {
   currentTime: number;
   nextIndex: number;
   activeIndex: number;
+  pulse: LinePulse | null;
   canSetTime: boolean;
   onEditTime: (index: number, time: number) => void;
   onClearTime: (index: number) => void;
@@ -32,6 +33,7 @@ export function TimedLyricsPane({
   currentTime,
   nextIndex,
   activeIndex,
+  pulse,
   canSetTime,
   onEditTime,
   onClearTime,
@@ -80,6 +82,7 @@ export function TimedLyricsPane({
           lines={lines}
           nextIndex={nextIndex}
           activeIndex={activeIndex}
+          pulse={pulse}
           canSetTime={canSetTime}
           onEditTime={onEditTime}
           onClearTime={onClearTime}

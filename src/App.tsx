@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CssBaseline, Snackbar, ThemeProvider, useMediaQuery } from '@mui/material';
-import type { MobileTab, PendingConfirm } from './types';
+import type { LinePulse, LinePulseDirection, MobileTab, PendingConfirm } from './types';
 import { useAudioPlayer } from './modules/player/useAudioPlayer';
 import { useAnnotationStore } from './modules/editor/useAnnotationStore';
 import { useIsMobile } from './hooks/useIsMobile';
@@ -82,7 +82,21 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
   const [confirmState, setConfirmState] = useState<PendingConfirm | null>(null);
   const [pendingLrcText, setPendingLrcText] = useState<string | null>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [pulse, setPulse] = useState<LinePulse | null>(null);
+  const pulseTimer = useRef<number | undefined>(undefined);
   const importInputRef = useRef<HTMLInputElement>(null);
+
+  const triggerPulse = useCallback((index: number, direction: LinePulseDirection) => {
+    setPulse((current) => ({
+      index,
+      direction,
+      nonce: (current?.nonce ?? 0) + 1,
+    }));
+    window.clearTimeout(pulseTimer.current);
+    pulseTimer.current = window.setTimeout(() => setPulse(null), 700);
+  }, []);
+
+  useEffect(() => () => window.clearTimeout(pulseTimer.current), []);
 
   const { lines } = store;
   const timedLines = useMemo(() => lines.filter((line) => line.time !== null), [lines]);
@@ -151,8 +165,25 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
         return;
       }
       store.setTime(index, player.currentTime);
+      triggerPulse(index, 'now');
     },
-    [player.hasStarted, player.currentTime, store],
+    [player.hasStarted, player.currentTime, store, triggerPulse],
+  );
+
+  const shiftLine = useCallback(
+    (index: number, delta: number) => {
+      const time = store.lines[index]?.time;
+      if (time === null || time === undefined) {
+        return;
+      }
+      const next = Math.max(0, time + delta);
+      if (next === time) {
+        return;
+      }
+      store.setTime(index, next);
+      triggerPulse(index, delta < 0 ? 'earlier' : 'later');
+    },
+    [store, triggerPulse],
   );
 
   const shiftLast = useCallback(
@@ -163,23 +194,11 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
           index = lineIndex;
         }
       });
-      if (index === -1) {
-        return;
+      if (index !== -1) {
+        shiftLine(index, delta);
       }
-      store.setTime(index, Math.max(0, (store.lines[index].time ?? 0) + delta));
     },
-    [store],
-  );
-
-  const shiftLine = useCallback(
-    (index: number, delta: number) => {
-      const time = store.lines[index]?.time;
-      if (time === null || time === undefined) {
-        return;
-      }
-      store.setTime(index, Math.max(0, time + delta));
-    },
-    [store],
+    [store, shiftLine],
   );
 
   const jumpTimedLine = useCallback(
@@ -309,6 +328,7 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
         hoveredIndex={hoveredIndex}
         activeIndex={activeIndex}
         nextIndex={nextIndex}
+        pulse={pulse}
         canAnnotate={canAnnotate}
         annotateHint={annotateHint}
         isDecoding={player.isDecoding}
