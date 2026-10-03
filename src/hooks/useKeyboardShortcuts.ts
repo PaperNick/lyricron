@@ -12,6 +12,7 @@ export interface ShortcutHandlers {
   undo: () => void;
   redo: () => void;
   shiftLast: (delta: number) => void;
+  deleteLast: () => void;
   jumpTimedLine: (direction: 1 | -1) => void;
   seek: (time: number) => void;
   currentTime: number;
@@ -75,6 +76,11 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
       }
       if (code === SHORTCUTS.shiftLater) {
         activeHandlers.shiftLast(SHIFT_STEP);
+        return;
+      }
+      if (code === SHORTCUTS.deleteLast) {
+        event.preventDefault();
+        activeHandlers.deleteLast();
         return;
       }
       if (code === SHORTCUTS.seekBack) {

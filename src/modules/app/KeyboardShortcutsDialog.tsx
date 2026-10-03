@@ -13,6 +13,7 @@ const playPause = shortcutLabel(SHORTCUTS.playPause);
 const annotate = shortcutLabel(SHORTCUTS.annotate);
 const undo = shortcutLabel(SHORTCUTS.undo);
 const shift = `${shortcutLabel(SHORTCUTS.shiftEarlier)} / ${shortcutLabel(SHORTCUTS.shiftLater)}`;
+const deleteLast = shortcutLabel(SHORTCUTS.deleteLast);
 const seek = `${shortcutLabel(SHORTCUTS.seekBack)} / ${shortcutLabel(SHORTCUTS.seekForward)}`;
 const seekLine = `Ctrl/⌘ + ${shortcutLabel(SHORTCUTS.seekBack)} / ${shortcutLabel(SHORTCUTS.seekForward)}`;
 const help = '?';
@@ -28,6 +29,7 @@ const SHORTCUTS_LIST: [string, string][] = [
   ['Ctrl/⌘ + Shift + Z', 'Redo'],
   ['Ctrl/⌘ + Y', 'Redo'],
   [shift, 'Shift the last line −50 ms / +50 ms'],
+  [deleteLast, 'Delete the last timestamp'],
   [help, 'Show this help'],
 ];
 

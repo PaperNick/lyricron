@@ -64,6 +64,7 @@ Defaults, configurable via `.env` (see `.env.example`):
 - `←` / `→`: Seek back / forward by 5 s (hold `Shift` for 1 s).
 - `Ctrl/⌘ + ←` / `→`: Previous / next timed line.
 - `[` / `]`: Shift the last line by -50 ms / +50 ms.
+- `Delete`: Delete the last timestamp.
 - `Ctrl/⌘ + Z` / `Ctrl/⌘ + Shift + Z`: Undo / Redo.
 - `Shift + /`: Show the shortcuts help.
 

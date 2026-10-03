@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CssBaseline, Snackbar, ThemeProvider, useMediaQuery } from '@mui/material';
-import type { LinePulse, LinePulseDirection, MobileTab, PendingConfirm } from './types';
+import type { LinePulse, LinePulseDirection, LyricLine, MobileTab, PendingConfirm } from './types';
 import { useAudioPlayer } from './modules/player/useAudioPlayer';
 import { useAnnotationStore } from './modules/editor/useAnnotationStore';
 import { useIsMobile } from './hooks/useIsMobile';
@@ -33,6 +33,16 @@ import { createAppTheme } from './theme';
 import type { ThemeMode } from './theme';
 
 const RESTART_THRESHOLD_SECONDS = 1;
+
+function lastTimedIndex(lines: LyricLine[]): number {
+  let index = -1;
+  lines.forEach((line, lineIndex) => {
+    if (line.time !== null) {
+      index = lineIndex;
+    }
+  });
+  return index;
+}
 
 export default function App() {
   const [themeMode, setThemeMode] = useState<ThemeMode>(loadThemeMode);
@@ -188,18 +198,20 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
 
   const shiftLast = useCallback(
     (delta: number) => {
-      let index = -1;
-      store.lines.forEach((line, lineIndex) => {
-        if (line.time !== null) {
-          index = lineIndex;
-        }
-      });
+      const index = lastTimedIndex(store.lines);
       if (index !== -1) {
         shiftLine(index, delta);
       }
     },
-    [store, shiftLine],
+    [store.lines, shiftLine],
   );
+
+  const deleteLastTime = useCallback(() => {
+    const index = lastTimedIndex(store.lines);
+    if (index !== -1) {
+      store.clearTime(index);
+    }
+  }, [store]);
 
   const jumpTimedLine = useCallback(
     (direction: 1 | -1) => {
@@ -260,6 +272,7 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
     undo: store.undo,
     redo: store.redo,
     shiftLast,
+    deleteLast: deleteLastTime,
     jumpTimedLine,
     seek: player.seek,
     currentTime: player.currentTime,
