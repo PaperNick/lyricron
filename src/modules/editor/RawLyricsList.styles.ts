@@ -1,9 +1,8 @@
-import { Typography, alpha, styled } from '@mui/material';
+import { IconButton, Typography, alpha, styled } from '@mui/material';
+import { fontSizes } from '../../theme/typography';
+import { PaneScrollArea, RowSurface } from './Pane.styles';
 
-export const ListRoot = styled('div')(({ theme }) => ({
-  flex: 1,
-  minHeight: 0,
-  overflowY: 'auto',
+export const ListRoot = styled(PaneScrollArea)(({ theme }) => ({
   paddingTop: theme.spacing(0.5),
   paddingBottom: theme.spacing(0.5),
 }));
@@ -13,7 +12,9 @@ export interface RowProps {
   $active: boolean;
 }
 
-export const Row = styled('div')<RowProps>(({ theme, $next, $active }) => ({
+export const Row = styled(RowSurface, {
+  shouldForwardProp: (prop) => prop !== '$next' && prop !== '$active',
+})<RowProps>(({ theme, $next, $active }) => ({
   display: 'flex',
   alignItems: 'center',
   gap: theme.spacing(0.5),
@@ -21,12 +22,22 @@ export const Row = styled('div')<RowProps>(({ theme, $next, $active }) => ({
   paddingRight: theme.spacing(0.5),
   paddingTop: theme.spacing(0.25),
   paddingBottom: theme.spacing(0.25),
-  borderRadius: theme.shape.borderRadius,
   backgroundColor: $next
     ? alpha(theme.palette.primary.main, 0.08)
     : $active
       ? theme.palette.action.hover
       : 'transparent',
+}));
+
+export const RowActions = styled('div')({
+  display: 'inline-flex',
+  alignItems: 'center',
+  flexShrink: 0,
+});
+
+export const RowActionButton = styled(IconButton)(({ theme }) => ({
+  padding: theme.spacing(0.375),
+  fontSize: fontSizes.iconSm,
 }));
 
 export interface LineTextProps {
@@ -44,7 +55,3 @@ export const LineText = styled(Typography, {
   cursor: $clickable ? 'pointer' : undefined,
   '&:hover': $clickable ? { textDecoration: 'underline' } : undefined,
 }));
-
-export const TooltipTarget = styled('span')({
-  display: 'inline-flex',
-});

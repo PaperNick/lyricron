@@ -1,15 +1,15 @@
 import { memo, useEffect, useRef } from 'react';
 import type { ReactElement } from 'react';
-import { IconButton, Tooltip } from '@mui/material';
+import { Tooltip } from '@mui/material';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
-import CloseIcon from '@mui/icons-material/Close';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import type { LyricLine } from '../../types';
 import { TimestampInput } from './TimestampInput';
 import { LineActionsMenu } from './LineActionsMenu';
 import { useIsMobile } from '../../hooks/useIsMobile';
-import { LineText, ListRoot, Row, TooltipTarget } from './RawLyricsList.styles';
+import { TooltipTarget } from '../../components/TooltipTarget';
+import { LineText, ListRoot, Row, RowActionButton, RowActions } from './RawLyricsList.styles';
 
 interface Props {
   lines: LyricLine[];
@@ -97,51 +97,43 @@ export const RawLyricsList = memo(function RawLyricsList({
                 onDelete={() => onClearTime(index)}
               />
             ) : (
-              <>
-                {line.time !== null && (
-                  <>
-                    <RowActionTooltip title="Shift −50 ms">
-                      <IconButton
-                        size="small"
-                        onClick={() => onShift(index, -0.05)}
-                        aria-label="Shift -50 ms"
-                      >
-                        <RemoveIcon fontSize="inherit" />
-                      </IconButton>
-                    </RowActionTooltip>
-                    <RowActionTooltip title="Shift +50 ms">
-                      <IconButton
-                        size="small"
-                        onClick={() => onShift(index, 0.05)}
-                        aria-label="Shift +50 ms"
-                      >
-                        <AddIcon fontSize="inherit" />
-                      </IconButton>
-                    </RowActionTooltip>
-                  </>
-                )}
+              <RowActions>
+                <RowActionTooltip title="Shift −50 ms">
+                  <RowActionButton
+                    disabled={line.time === null}
+                    onClick={() => onShift(index, -0.05)}
+                    aria-label="Shift -50 ms"
+                  >
+                    <RemoveIcon fontSize="inherit" />
+                  </RowActionButton>
+                </RowActionTooltip>
+                <RowActionTooltip title="Shift +50 ms">
+                  <RowActionButton
+                    disabled={line.time === null}
+                    onClick={() => onShift(index, 0.05)}
+                    aria-label="Shift +50 ms"
+                  >
+                    <AddIcon fontSize="inherit" />
+                  </RowActionButton>
+                </RowActionTooltip>
                 <RowActionTooltip title="Set to current time">
-                  <IconButton
-                    size="small"
+                  <RowActionButton
                     disabled={!canSetTime}
                     onClick={() => onSetTimeToNow(index)}
                     aria-label="Set to current time"
                   >
                     <MyLocationIcon fontSize="inherit" />
-                  </IconButton>
+                  </RowActionButton>
                 </RowActionTooltip>
-                {line.time !== null && (
-                  <RowActionTooltip title="Delete timestamp">
-                    <IconButton
-                      size="small"
-                      onClick={() => onClearTime(index)}
-                      aria-label="Delete timestamp"
-                    >
-                      <CloseIcon fontSize="inherit" />
-                    </IconButton>
-                  </RowActionTooltip>
-                )}
-              </>
+                <LineActionsMenu
+                  time={line.time}
+                  canSetTime={canSetTime}
+                  onShift={(delta) => onShift(index, delta)}
+                  onSetTimeToNow={() => onSetTimeToNow(index)}
+                  onDelete={() => onClearTime(index)}
+                  deleteOnly
+                />
+              </RowActions>
             )}
           </Row>
         );

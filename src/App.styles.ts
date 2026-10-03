@@ -76,10 +76,6 @@ export const NavDivider = styled('div')(({ theme }) => ({
   marginRight: theme.spacing(0.5),
 }));
 
-export const TooltipTarget = styled('span')({
-  display: 'inline-flex',
-});
-
 export const Content = styled('div')({
   flex: 1,
   minHeight: 0,

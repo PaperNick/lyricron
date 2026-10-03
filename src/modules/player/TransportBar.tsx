@@ -10,6 +10,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { ProgressBar } from './ProgressBar';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { SHORTCUTS, shortcutLabel } from '../../config/shortcuts';
+import { TooltipTarget } from '../../components/TooltipTarget';
 import {
   AnnotateButton,
   AnnotateGrow,
@@ -32,7 +33,6 @@ import {
   RateValue,
   Spacer,
   StepButton,
-  TooltipTarget,
   TransportRow,
   UtilsRow,
 } from './TransportBar.styles';

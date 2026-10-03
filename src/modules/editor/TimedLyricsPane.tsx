@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { ToggleButton, Tooltip } from '@mui/material';
+import { ToggleButton } from '@mui/material';
 import type { LyricLine } from '../../types';
 import { RawLyricsList } from './RawLyricsList';
 import { PreviewPane } from './PreviewPane';
-import { CopyButton, CopyIcon, Header, PaneRoot, Title, TooltipTarget } from './Pane.styles';
+import { PaneRoot } from './Pane.styles';
+import { PaneHeader } from './PaneHeader';
 import { Spacer, ToggleGroup } from './TimedLyricsPane.styles';
 
 type TabValue = 'edit' | 'preview';
@@ -45,20 +46,14 @@ export function TimedLyricsPane({
 
   return (
     <PaneRoot variant="outlined">
-      <Header $inset={0.5}>
-        <Title variant="subtitle1">Timed lyrics</Title>
-        <Tooltip title="Copy timed lyrics (.lrc)">
-          <TooltipTarget>
-            <CopyButton
-              size="small"
-              onClick={onCopy}
-              disabled={timedLines.length === 0}
-              aria-label="Copy timed lyrics"
-            >
-              <CopyIcon />
-            </CopyButton>
-          </TooltipTarget>
-        </Tooltip>
+      <PaneHeader
+        title="Timed lyrics"
+        copyLabel="Copy timed lyrics"
+        copyTooltip="Copy timed lyrics (.lrc)"
+        copyDisabled={timedLines.length === 0}
+        onCopy={onCopy}
+        inset={0.5}
+      >
         <Spacer />
         <ToggleGroup
           size="small"
@@ -78,7 +73,7 @@ export function TimedLyricsPane({
             Preview
           </ToggleButton>
         </ToggleGroup>
-      </Header>
+      </PaneHeader>
 
       {tab === 'edit' ? (
         <RawLyricsList

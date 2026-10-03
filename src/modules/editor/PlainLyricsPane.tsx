@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Tooltip } from '@mui/material';
 import type { LyricLine } from '../../types';
 import { linesToText } from '../../lib/plain';
 import { isLrcText } from '../../lib/lrc';
-import { CopyButton, CopyIcon, Header, PaneRoot, Title, TooltipTarget } from './Pane.styles';
+import { PaneRoot, PaneScrollArea } from './Pane.styles';
+import { PaneHeader } from './PaneHeader';
 import {
   AccentBar,
   Editor,
@@ -12,7 +12,6 @@ import {
   Mirror,
   MirrorText,
   MirrorWrapper,
-  ScrollArea,
 } from './PlainLyricsPane.styles';
 
 interface Props {
@@ -58,22 +57,15 @@ export function PlainLyricsPane({
 
   return (
     <PaneRoot variant="outlined">
-      <Header $inset={1}>
-        <Title variant="subtitle1">Plain lyrics</Title>
-        <Tooltip title="Copy plain lyrics">
-          <TooltipTarget>
-            <CopyButton
-              size="small"
-              onClick={onCopy}
-              disabled={value.trim() === ''}
-              aria-label="Copy plain lyrics"
-            >
-              <CopyIcon />
-            </CopyButton>
-          </TooltipTarget>
-        </Tooltip>
-      </Header>
-      <ScrollArea ref={scrollRef} data-testid="plain-scroll">
+      <PaneHeader
+        title="Plain lyrics"
+        copyLabel="Copy plain lyrics"
+        copyTooltip="Copy plain lyrics"
+        copyDisabled={value.trim() === ''}
+        onCopy={onCopy}
+        inset={1}
+      />
+      <PaneScrollArea ref={scrollRef} data-testid="plain-scroll">
         <MirrorWrapper>
           <Mirror aria-hidden>
             {lines.map((line, index) => {
@@ -111,7 +103,7 @@ export function PlainLyricsPane({
             placeholder="Paste the lyrics here, one line per line…"
           />
         </MirrorWrapper>
-      </ScrollArea>
+      </PaneScrollArea>
     </PaneRoot>
   );
 }

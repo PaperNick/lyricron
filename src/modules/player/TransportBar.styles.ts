@@ -5,10 +5,6 @@ export const BarRoot = styled(Paper)({
   overflow: 'hidden',
 });
 
-export const TooltipTarget = styled('span')({
-  display: 'inline-flex',
-});
-
 export const Spacer = styled('div')({
   width: 8,
 });

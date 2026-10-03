@@ -21,6 +21,7 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import BrightnessAutoIcon from '@mui/icons-material/BrightnessAuto';
 import type { ThemeMode } from '../../theme';
+import { TooltipTarget } from '../../components/TooltipTarget';
 import {
   Brand,
   BrandIcon,
@@ -29,7 +30,6 @@ import {
   NavSpacer,
   NavToolbar,
   NewButton,
-  TooltipTarget,
   TopBar as TopBarRoot,
 } from '../../App.styles';
 

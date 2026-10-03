@@ -1,15 +1,6 @@
 import { alpha, styled } from '@mui/material';
 import { fontSizes } from '../../theme/typography';
-
-export const LINE_HEIGHT = 36;
-export const GUTTER = 40;
-
-export const ScrollArea = styled('div')({
-  flex: 1,
-  minHeight: 0,
-  overflowY: 'auto',
-  position: 'relative',
-});
+import { GUTTER, LINE_HEIGHT, RowSurface } from './Pane.styles';
 
 export const MirrorWrapper = styled('div')({
   position: 'relative',
@@ -27,18 +18,17 @@ export interface LineRowProps {
   $focused: boolean;
 }
 
-export const LineRow = styled('div')<LineRowProps>(({ theme, $hovered, $active, $focused }) => ({
+export const LineRow = styled(RowSurface, {
+  shouldForwardProp: (prop) => prop !== '$hovered' && prop !== '$active' && prop !== '$focused',
+})<LineRowProps>(({ theme, $hovered, $active, $focused }) => ({
   position: 'relative',
-  minHeight: LINE_HEIGHT,
   lineHeight: `${LINE_HEIGHT}px`,
   paddingLeft: GUTTER,
-  borderRadius: theme.shape.borderRadius,
   backgroundColor: $hovered
     ? alpha(theme.palette.primary.main, $focused ? 0.12 : 0.2)
     : $active
       ? theme.palette.action.selected
       : 'transparent',
-  transition: 'background-color .12s ease',
 }));
 
 export const AccentBar = styled('div')(({ theme }) => ({

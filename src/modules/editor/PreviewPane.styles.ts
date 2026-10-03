@@ -1,10 +1,8 @@
 import { Typography, styled } from '@mui/material';
 import { fontSizes } from '../../theme/typography';
+import { PaneScrollArea } from './Pane.styles';
 
-export const Pane = styled('div')(({ theme }) => ({
-  flex: 1,
-  minHeight: 0,
-  overflowY: 'auto',
+export const Pane = styled(PaneScrollArea)(({ theme }) => ({
   paddingLeft: theme.spacing(2),
   paddingRight: theme.spacing(2),
   paddingTop: theme.spacing(1),

@@ -443,7 +443,8 @@ test.describe('lyricron', () => {
     expect(await timedStampCount(page)).toBe(3);
 
     // Delete the middle line, leaving a gap between line 1 and line 3.
-    await page.getByRole('button', { name: 'Delete timestamp' }).nth(1).click();
+    await page.getByRole('button', { name: 'Line actions' }).nth(1).click();
+    await page.getByRole('menuitem', { name: 'Delete timestamp' }).click();
 
     // Playback inside the gap must re-enable Annotate (it only needs to be past line 1).
     await seekTo(page, 15);
@@ -470,7 +471,7 @@ test.describe('lyricron', () => {
     await expect(stampButtons(page).first()).toHaveText('00:00.49');
   });
 
-  test('deletes a timestamp with the X button and by clearing the field', async ({ page }) => {
+  test('deletes a timestamp from the row menu and by clearing the field', async ({ page }) => {
     await loadAudio(page);
     await pasteLyrics(page, ['Line one', 'Line two']);
 
@@ -479,8 +480,9 @@ test.describe('lyricron', () => {
     await annotate.click();
     await expect(stampButtons(page).first()).not.toHaveText('--:--.--');
 
-    // X button resets the line.
-    await page.getByRole('button', { name: 'Delete timestamp' }).click();
+    // The row menu resets the line.
+    await page.getByRole('button', { name: 'Line actions' }).first().click();
+    await page.getByRole('menuitem', { name: 'Delete timestamp' }).click();
     await expect(stampButtons(page).first()).toHaveText('--:--.--');
 
     // Clearing the field and committing also resets it.
@@ -570,10 +572,10 @@ test.describe('lyricron', () => {
     await field.press('Enter');
     await expect(stampButtons(page).first()).toHaveText('00:05.00');
 
-    await page.getByRole('button', { name: 'Shift +50 ms' }).click();
+    await page.getByRole('button', { name: 'Shift +50 ms' }).first().click();
     await expect(stampButtons(page).first()).toHaveText('00:05.05');
 
-    await page.getByRole('button', { name: 'Shift -50 ms' }).click();
+    await page.getByRole('button', { name: 'Shift -50 ms' }).first().click();
     await expect(stampButtons(page).first()).toHaveText('00:05.00');
   });
 
