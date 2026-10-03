@@ -753,6 +753,11 @@ test.describe('lyricron', () => {
 
     const dialog = page.getByRole('dialog');
     await expect(dialog.getByText('Keyboard shortcuts')).toBeVisible();
+    await expect(dialog.getByText('Playback', { exact: true })).toBeVisible();
+    await expect(dialog.getByText('Annotate', { exact: true })).toBeVisible();
+    await expect(dialog.getByText('Timestamps', { exact: true })).toBeVisible();
+    await expect(dialog.getByText('History', { exact: true })).toBeVisible();
+    await expect(dialog.getByText('Help', { exact: true })).toBeVisible();
     await expect(dialog.getByText('Play / Pause')).toBeVisible();
     await expect(dialog.getByText('Annotate the next line')).toBeVisible();
   });

@@ -59,14 +59,36 @@ Open the URL printed by Vite (default `http://localhost:5173`).
 
 Defaults, configurable via `.env` (see `.env.example`):
 
+**Playback**
+
 - `Space`: Play / Pause.
+- `←`: Seek back 5 s.
+- `→`: Seek forward 5 s.
+- `Shift + ←`: Seek back 1 s.
+- `Shift + →`: Seek forward 1 s.
+- `Ctrl/⌘ + ←`: Previous timed line.
+- `Ctrl/⌘ + →`: Next timed line.
+
+**Annotate**
+
 - `Enter`: Annotate the next line.
-- `←` / `→`: Seek back / forward by 5 s (hold `Shift` for 1 s).
-- `Ctrl/⌘ + ←` / `→`: Previous / next timed line.
-- `[` / `]`: Shift the last line by -50 ms / +50 ms.
+- `Ctrl/⌘ + Enter`: Set the highlighted line to the current time.
+
+**Timestamps**
+
+- `[`: Shift the last line -50 ms.
+- `]`: Shift the last line +50 ms.
+- `Ctrl/⌘ + [`: Shift the highlighted line -50 ms.
+- `Ctrl/⌘ + ]`: Shift the highlighted line +50 ms.
 - `Delete`: Delete the last timestamp.
-- `Ctrl/⌘ + Z` / `Ctrl/⌘ + Shift + Z`: Undo / Redo.
-- `Shift + /`: Show the shortcuts help.
+- `Ctrl/⌘ + Delete`: Delete the highlighted line's timestamp.
+
+**History**
+
+- `Backspace`: Undo.
+- `Ctrl/⌘ + Z`: Undo.
+- `Ctrl/⌘ + Shift + Z`: Redo.
+- `Ctrl/⌘ + Y`: Redo.
 
 To customize, copy `.env.example` to `.env` (or `.env.local`) and set any `VITE_SHORTCUT_*` value to a `KeyboardEvent.code` string (for example `KeyA`, `Space`, `ArrowLeft`), then restart the dev server. Empty values fall back to the defaults above.
 

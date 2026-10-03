@@ -104,7 +104,7 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
         }
         return;
       }
-      if (code === SHORTCUTS.deleteLast) {
+      if (code === SHORTCUTS.delete) {
         event.preventDefault();
         const index = activeHandlers.activeIndex;
         if (ctrl) {

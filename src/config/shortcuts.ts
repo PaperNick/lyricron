@@ -14,7 +14,7 @@ export const SHORTCUTS = {
   undo: read(env.VITE_SHORTCUT_UNDO, 'Backspace'),
   shiftEarlier: read(env.VITE_SHORTCUT_SHIFT_EARLIER, 'BracketLeft'),
   shiftLater: read(env.VITE_SHORTCUT_SHIFT_LATER, 'BracketRight'),
-  deleteLast: read(env.VITE_SHORTCUT_DELETE_LAST, 'Delete'),
+  delete: read(env.VITE_SHORTCUT_DELETE, 'Delete'),
   seekBack: read(env.VITE_SHORTCUT_SEEK_BACK, 'ArrowLeft'),
   seekForward: read(env.VITE_SHORTCUT_SEEK_FORWARD, 'ArrowRight'),
   help: read(env.VITE_SHORTCUT_HELP, 'Slash'),
