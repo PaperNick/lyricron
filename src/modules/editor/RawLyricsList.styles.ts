@@ -1,8 +1,11 @@
 import { Checkbox, IconButton, Typography, alpha, styled } from '@mui/material';
 import { fontSizes } from '../../theme/typography';
-import { PaneScrollArea, RowSurface } from './Pane.styles';
+import { PANE_PADDING, PaneScrollArea, RowSurface } from './Pane.styles';
 
 export const ListRoot = styled(PaneScrollArea)(({ theme }) => ({
+  // Bleed into the pane padding: the rail sits in the margin, rows stay aligned.
+  marginLeft: theme.spacing(-PANE_PADDING),
+  paddingLeft: theme.spacing(PANE_PADDING),
   paddingTop: theme.spacing(0.5),
   paddingBottom: theme.spacing(0.5),
 }));
@@ -30,6 +33,7 @@ export const Row = styled(RowSurface, {
   const revealCheckbox = { opacity: 1 };
 
   return {
+    position: 'relative',
     display: 'flex',
     alignItems: 'center',
     gap: theme.spacing(0.5),
@@ -51,15 +55,20 @@ export const Row = styled(RowSurface, {
   };
 });
 
-export const SelectRail = styled('div')({
+/** Sits in the pane's left margin, outside the row highlight. */
+export const SelectRail = styled('div')(({ theme }) => ({
+  position: 'absolute',
+  left: theme.spacing(-PANE_PADDING),
+  top: '50%',
+  transform: 'translateY(-50%)',
+  width: theme.spacing(PANE_PADDING),
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  width: 18,
-  flexShrink: 0,
+  zIndex: 1,
   cursor: 'pointer',
   userSelect: 'none',
-});
+}));
 
 export const SelectCheckbox = styled(Checkbox)(({ theme }) => ({
   padding: 0,

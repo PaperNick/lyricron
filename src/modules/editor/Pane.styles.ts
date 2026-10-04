@@ -4,10 +4,11 @@ import { fontSizes } from '../../theme/typography';
 
 export const LINE_HEIGHT = 36;
 
-export const GUTTER = 40;
+/** Shared pane padding; the row gutter math builds on it. */
+export const PANE_PADDING = 3.5;
 
 export const PaneRoot = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(3.5),
+  padding: theme.spacing(PANE_PADDING),
   height: '100%',
   display: 'flex',
   flexDirection: 'column',

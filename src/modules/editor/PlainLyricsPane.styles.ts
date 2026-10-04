@@ -1,6 +1,11 @@
 import { alpha, styled } from '@mui/material';
 import { fontSizes } from '../../theme/typography';
-import { GUTTER, LINE_HEIGHT, RowSurface } from './Pane.styles';
+import { LINE_HEIGHT, RowSurface } from './Pane.styles';
+
+/** Line-number gutter: inset + column width + 1px gap before the lyric text. */
+const NUMBER_INSET = 9;
+const NUMBER_WIDTH = 30;
+const GUTTER = NUMBER_INSET + NUMBER_WIDTH + 1;
 
 export const MirrorWrapper = styled('div')({
   position: 'relative',
@@ -8,7 +13,8 @@ export const MirrorWrapper = styled('div')({
 });
 
 export const Mirror = styled('div')(({ theme }) => ({
-  padding: `${theme.spacing(0.5)} ${theme.spacing(1)}`,
+  // Matches the pane title and timestamp insets.
+  padding: theme.spacing(0.5),
   pointerEvents: 'none',
 }));
 
@@ -47,10 +53,10 @@ export interface GutterNumberProps {
 
 export const GutterNumber = styled('span')<GutterNumberProps>(({ theme, $hovered }) => ({
   position: 'absolute',
-  left: 0,
+  left: NUMBER_INSET,
   top: 0,
-  width: GUTTER - 10,
-  textAlign: 'right',
+  width: NUMBER_WIDTH,
+  textAlign: 'left',
   fontSize: fontSizes.caption,
   lineHeight: `${LINE_HEIGHT}px`,
   color: $hovered ? theme.palette.primary.main : theme.palette.text.disabled,
@@ -79,7 +85,8 @@ export const Editor = styled('textarea')(({ theme }) => ({
   fontFamily: 'inherit',
   fontSize: fontSizes.body,
   lineHeight: `${LINE_HEIGHT}px`,
-  padding: `${theme.spacing(0.5)} ${theme.spacing(1)} ${theme.spacing(0.5)} 48px`,
+  // Mirror inset + gutter, so the overlay text lines up with the mirror.
+  padding: `${theme.spacing(0.5)} ${theme.spacing(0.5)} ${theme.spacing(0.5)} calc(${GUTTER}px + ${theme.spacing(0.5)})`,
   whiteSpace: 'pre-wrap',
   overflowWrap: 'break-word',
   wordBreak: 'break-word',

@@ -63,7 +63,7 @@ export function PlainLyricsPane({
         copyTooltip="Copy plain lyrics"
         copyDisabled={value.trim() === ''}
         onCopy={onCopy}
-        inset={1}
+        inset={0.5}
       />
       <PaneScrollArea ref={scrollRef} data-testid="plain-scroll">
         <MirrorWrapper>
