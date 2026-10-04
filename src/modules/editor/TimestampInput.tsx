@@ -71,7 +71,13 @@ export function TimestampInput({ time, onCommit, onClear, pulse }: Props) {
       >
         {time === null ? '--:--.--' : formatLrcTime(time)}
       </TimestampButton>
-      {pulse && <TimestampPulse key={pulse.nonce} $direction={pulse.direction} />}
+      {pulse && (
+        <TimestampPulse
+          key={pulse.nonce}
+          data-testid="timestamp-pulse"
+          $direction={pulse.direction}
+        />
+      )}
     </TimestampWrap>
   );
 }

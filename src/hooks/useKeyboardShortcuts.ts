@@ -22,6 +22,12 @@ export interface ShortcutHandlers {
   shiftLine: (index: number, delta: number) => void;
   deleteLine: (index: number) => void;
   setTimeToNow: (index: number) => void;
+  /** True while lines are selected for bulk actions. */
+  isSelecting: boolean;
+  extendSelection: (direction: 1 | -1) => void;
+  dismissSelection: () => void;
+  shiftSelection: (delta: number) => void;
+  clearSelectionTimes: () => void;
 }
 
 const isEditableTarget = (target: EventTarget | null): boolean => {
@@ -60,6 +66,18 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
         return;
       }
 
+      if (event.shiftKey && (code === SHORTCUTS.selectUp || code === SHORTCUTS.selectDown)) {
+        event.preventDefault();
+        const direction = code === SHORTCUTS.selectUp ? -1 : 1;
+        activeHandlers.extendSelection(direction);
+        return;
+      }
+      if (code === SHORTCUTS.deselect && activeHandlers.isSelecting) {
+        event.preventDefault();
+        activeHandlers.dismissSelection();
+        return;
+      }
+
       if (code === SHORTCUTS.playPause) {
         event.preventDefault();
         activeHandlers.toggle();
@@ -82,38 +100,49 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
         activeHandlers.undo();
         return;
       }
-      if (code === SHORTCUTS.shiftEarlier) {
+
+      // Ctrl/⌘ scopes a shortcut to the highlighted line; otherwise it acts on
+      // the selection when one is active, or on the last timed line.
+      const runByContext = (
+        onActive: (index: number) => void,
+        onSelection: () => void,
+        onFallback: () => void,
+      ) => {
         const index = activeHandlers.activeIndex;
         if (ctrl) {
           if (index !== -1) {
-            activeHandlers.shiftLine(index, -SHIFT_STEP);
+            onActive(index);
           }
+        } else if (activeHandlers.isSelecting) {
+          onSelection();
         } else {
-          activeHandlers.shiftLast(-SHIFT_STEP);
+          onFallback();
         }
+      };
+
+      if (code === SHORTCUTS.shiftEarlier) {
+        runByContext(
+          (index) => activeHandlers.shiftLine(index, -SHIFT_STEP),
+          () => activeHandlers.shiftSelection(-SHIFT_STEP),
+          () => activeHandlers.shiftLast(-SHIFT_STEP),
+        );
         return;
       }
       if (code === SHORTCUTS.shiftLater) {
-        const index = activeHandlers.activeIndex;
-        if (ctrl) {
-          if (index !== -1) {
-            activeHandlers.shiftLine(index, SHIFT_STEP);
-          }
-        } else {
-          activeHandlers.shiftLast(SHIFT_STEP);
-        }
+        runByContext(
+          (index) => activeHandlers.shiftLine(index, SHIFT_STEP),
+          () => activeHandlers.shiftSelection(SHIFT_STEP),
+          () => activeHandlers.shiftLast(SHIFT_STEP),
+        );
         return;
       }
       if (code === SHORTCUTS.delete) {
         event.preventDefault();
-        const index = activeHandlers.activeIndex;
-        if (ctrl) {
-          if (index !== -1) {
-            activeHandlers.deleteLine(index);
-          }
-        } else {
-          activeHandlers.deleteLast();
-        }
+        runByContext(
+          activeHandlers.deleteLine,
+          activeHandlers.clearSelectionTimes,
+          activeHandlers.deleteLast,
+        );
         return;
       }
       if (code === SHORTCUTS.seekBack) {

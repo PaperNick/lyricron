@@ -1,7 +1,13 @@
 import { useCallback, useReducer } from 'react';
 import type { LyricLine } from '../../types';
 import { textToLines } from '../../lib/plain';
-import { setLineTime, shiftAllTimes, clearLineTime } from '../../lib/annotation';
+import {
+  clearLineTime,
+  clearLineTimes,
+  setLineTime,
+  shiftAllTimes,
+  shiftLineTimes,
+} from '../../lib/annotation';
 
 interface State {
   past: LyricLine[][];
@@ -14,6 +20,8 @@ type Action =
   | { type: 'setLines'; lines: LyricLine[]; coalesce?: boolean }
   | { type: 'setLineTime'; index: number; time: number }
   | { type: 'clearLineTime'; index: number }
+  | { type: 'shiftLines'; indices: number[]; delta: number }
+  | { type: 'clearTimes'; indices: number[] }
   | { type: 'shiftAll'; delta: number }
   | { type: 'undo' }
   | { type: 'redo' };
@@ -43,6 +51,10 @@ function reducer(state: State, action: Action): State {
       return commit(state, setLineTime(state.present, action.index, action.time), false);
     case 'clearLineTime':
       return commit(state, clearLineTime(state.present, action.index), false);
+    case 'shiftLines':
+      return commit(state, shiftLineTimes(state.present, action.indices, action.delta), false);
+    case 'clearTimes':
+      return commit(state, clearLineTimes(state.present, action.indices), false);
     case 'shiftAll':
       return commit(state, shiftAllTimes(state.present, action.delta), false);
     case 'undo': {
@@ -80,6 +92,8 @@ export interface AnnotationStore {
   replaceLines: (lines: LyricLine[]) => void;
   setTime: (index: number, time: number) => void;
   clearTime: (index: number) => void;
+  shiftLines: (indices: number[], delta: number) => void;
+  clearTimes: (indices: number[]) => void;
   shiftAll: (delta: number) => void;
   undo: () => void;
   redo: () => void;
@@ -112,6 +126,14 @@ export function useAnnotationStore(initialLines: LyricLine[]): AnnotationStore {
     dispatch({ type: 'clearLineTime', index });
   }, []);
 
+  const shiftLines = useCallback((indices: number[], delta: number) => {
+    dispatch({ type: 'shiftLines', indices, delta });
+  }, []);
+
+  const clearTimes = useCallback((indices: number[]) => {
+    dispatch({ type: 'clearTimes', indices });
+  }, []);
+
   const shiftAll = useCallback((delta: number) => {
     dispatch({ type: 'shiftAll', delta });
   }, []);
@@ -127,6 +149,8 @@ export function useAnnotationStore(initialLines: LyricLine[]): AnnotationStore {
     replaceLines,
     setTime,
     clearTime,
+    shiftLines,
+    clearTimes,
     shiftAll,
     undo,
     redo,

@@ -111,3 +111,58 @@ export function clearLineTime(lines: LyricLine[], index: number): LyricLine[] {
   result[index] = { ...result[index], time: null };
   return result;
 }
+
+/**
+ * Applies `update` to the timestamps of the selected timed lines, returning the
+ * new array and whether anything changed. Untimed and unselected lines pass
+ * through unchanged.
+ */
+function mapSelectedTimes(
+  lines: LyricLine[],
+  indices: number[],
+  update: (time: number) => number | null,
+): { result: LyricLine[]; changed: boolean } {
+  const selected = new Set(indices);
+  let changed = false;
+  const result = lines.map((line, index) => {
+    if (!selected.has(index) || line.time === null) {
+      return line;
+    }
+    changed = true;
+    return { ...line, time: update(line.time) };
+  });
+  return { result, changed };
+}
+
+/**
+ * Shifts the timestamps of the selected lines by `delta` seconds. Untimed lines
+ * are skipped. Shifting later pushes following lines forward, and shifting
+ * earlier pulls preceding lines back, so the minimum gap is preserved.
+ */
+export function shiftLineTimes(lines: LyricLine[], indices: number[], delta: number): LyricLine[] {
+  if (delta === 0 || indices.length === 0) {
+    return lines;
+  }
+
+  const { result, changed } = mapSelectedTimes(lines, indices, (time) => Math.max(0, time + delta));
+  if (!changed) {
+    return lines;
+  }
+
+  // Cascade in the shift direction first so gaps stay monotonic.
+  if (delta > 0) {
+    pushLaterLinesForward(result, 0);
+    pullEarlierLinesBack(result, result.length - 1);
+  } else {
+    pullEarlierLinesBack(result, result.length - 1);
+    pushLaterLinesForward(result, 0);
+  }
+
+  return result;
+}
+
+/** Removes the timestamps of the selected lines, leaving other lines untouched. */
+export function clearLineTimes(lines: LyricLine[], indices: number[]): LyricLine[] {
+  const { result, changed } = mapSelectedTimes(lines, indices, () => null);
+  return changed ? result : lines;
+}

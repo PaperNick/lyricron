@@ -6,9 +6,9 @@ export interface LyricLine {
 
 export type LinePulseDirection = 'earlier' | 'later' | 'now';
 
-/** Transient highlight shown on a timestamp after an action changes it. */
+/** Transient highlight shown on timestamps after an action changes them. */
 export interface LinePulse {
-  index: number;
+  indices: number[];
   direction: LinePulseDirection;
   /** Bumped per action so repeating one direction retriggers the animation. */
   nonce: number;

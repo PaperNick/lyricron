@@ -756,6 +756,7 @@ test.describe('lyricron', () => {
     await expect(dialog.getByText('Playback', { exact: true })).toBeVisible();
     await expect(dialog.getByText('Annotate', { exact: true })).toBeVisible();
     await expect(dialog.getByText('Timestamps', { exact: true })).toBeVisible();
+    await expect(dialog.getByText('Selection', { exact: true })).toBeVisible();
     await expect(dialog.getByText('History', { exact: true })).toBeVisible();
     await expect(dialog.getByText('Help', { exact: true })).toBeVisible();
     await expect(dialog.getByText('Play / Pause')).toBeVisible();
@@ -992,6 +993,149 @@ test.describe('lyricron', () => {
 
     await page.keyboard.press('Control+[');
     await expect(stampButtons(page).nth(0)).toHaveText('00:05.00');
+  });
+
+  test('selects a range from the row rail and shifts the selected timestamps together', async ({
+    page,
+  }) => {
+    await loadAudio(page);
+    await pasteLyrics(page, ['Line one', 'Line two', 'Line three']);
+    await play(page);
+    await pausePlayback(page);
+    await setStamp(page, 0, '00:05.00');
+    await setStamp(page, 1, '00:10.00');
+    await setStamp(page, 2, '00:15.00');
+    await page.locator('textarea:not([readonly])').blur();
+
+    const checkboxes = page.getByRole('checkbox', { name: /Select line/ });
+    await checkboxes.nth(0).click();
+    await expect(page.getByTestId('selection-count')).toHaveText('1 selected');
+
+    await checkboxes.nth(1).click({ modifiers: ['Shift'] });
+    await expect(page.getByTestId('selection-count')).toHaveText('2 selected');
+
+    await page.getByRole('button', { name: 'Shift selected +50 ms' }).click();
+    await expect(page.getByTestId('timestamp-pulse')).toHaveCount(2);
+    await expect(stampButtons(page).nth(0)).toHaveText('00:05.05');
+    await expect(stampButtons(page).nth(1)).toHaveText('00:10.05');
+    await expect(stampButtons(page).nth(2)).toHaveText('00:15.00');
+
+    // Escape returns the pane header and leaves the selection behind.
+    await page.keyboard.press('Escape');
+    await expect(page.getByTestId('selection-count')).toHaveCount(0);
+    await expect(page.getByText('Timed lyrics')).toBeVisible();
+  });
+
+  test('selects a range by dragging across lyric lines', async ({ page }) => {
+    await loadAudio(page);
+    await pasteLyrics(page, ['Line one', 'Line two', 'Line three']);
+    await play(page);
+    await pausePlayback(page);
+    await setStamp(page, 0, '00:05.00');
+    await setStamp(page, 1, '00:10.00');
+    await setStamp(page, 2, '00:15.00');
+    await page.locator('textarea:not([readonly])').blur();
+    await seekTo(page, 0);
+    await page.waitForTimeout(150);
+
+    const rows = page.getByTestId('raw-list').locator('[data-index]');
+    const first = (await rows.nth(0).boundingBox())!;
+    const last = (await rows.nth(2).boundingBox())!;
+    const x = first.x + first.width * 0.55;
+
+    // Drag from the middle of the first lyric line down to the last one.
+    await page.mouse.move(x, first.y + first.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(x, last.y + last.height / 2, { steps: 4 });
+    await page.mouse.up();
+
+    await expect(page.getByTestId('selection-count')).toHaveText('3 selected');
+    // The drag must not seek like a click on the line would.
+    expect(await currentTime(page)).toBeCloseTo(0, 1);
+  });
+
+  test('extends the selection with Shift+Arrow and scopes [ and Delete to it', async ({ page }) => {
+    await loadAudio(page);
+    await pasteLyrics(page, ['Line one', 'Line two', 'Line three']);
+    await play(page);
+    await pausePlayback(page);
+    await setStamp(page, 0, '00:05.00');
+    await setStamp(page, 1, '00:10.00');
+    await setStamp(page, 2, '00:15.00');
+    await page.locator('textarea:not([readonly])').blur();
+    await seekTo(page, 6);
+    await page.waitForTimeout(150);
+
+    // Selection starts at the highlighted playback line.
+    await page.keyboard.press('Shift+ArrowDown');
+    await expect(page.getByTestId('selection-count')).toHaveText('2 selected');
+    await page.keyboard.press('Shift+ArrowDown');
+    await expect(page.getByTestId('selection-count')).toHaveText('3 selected');
+
+    await page.keyboard.press('Escape');
+    await expect(page.getByTestId('selection-count')).toHaveCount(0);
+
+    // The bracket keys now shift the selection instead of the last line.
+    await page.keyboard.press('Shift+ArrowDown');
+    await page.keyboard.press(']');
+    await expect(stampButtons(page).nth(0)).toHaveText('00:05.05');
+    await expect(stampButtons(page).nth(1)).toHaveText('00:10.05');
+    await expect(stampButtons(page).nth(2)).toHaveText('00:15.00');
+
+    // Delete clears the selected timestamps as a single undo step.
+    await page.keyboard.press('Delete');
+    await expect(stampButtons(page).nth(0)).toHaveText('--:--.--');
+    await expect(stampButtons(page).nth(1)).toHaveText('--:--.--');
+    await expect(stampButtons(page).nth(2)).toHaveText('00:15.00');
+
+    await page.keyboard.press('Control+z');
+    await expect(stampButtons(page).nth(0)).toHaveText('00:05.05');
+    await expect(stampButtons(page).nth(1)).toHaveText('00:10.05');
+  });
+
+  test('selects all timed lines from the header menu and clears their timestamps', async ({
+    page,
+  }) => {
+    await loadAudio(page);
+    await pasteLyrics(page, ['Line one', 'Line two', 'Line three']);
+    await play(page);
+    await pausePlayback(page);
+    await setStamp(page, 0, '00:05.00');
+    await setStamp(page, 1, '00:10.00');
+    await setStamp(page, 2, '00:15.00');
+    await page.locator('textarea:not([readonly])').blur();
+
+    await page.getByRole('button', { name: 'Select lines' }).click();
+    await page.getByRole('menuitem', { name: 'Select timed (3)' }).click();
+    await expect(page.getByTestId('selection-count')).toHaveText('3 selected');
+
+    await page.getByRole('button', { name: 'Clear timestamps' }).click();
+    await expect(page.getByText('Cleared 3 timestamps')).toBeVisible();
+    await expect(stampButtons(page).nth(0)).toHaveText('--:--.--');
+    await expect(stampButtons(page).nth(1)).toHaveText('--:--.--');
+    await expect(stampButtons(page).nth(2)).toHaveText('--:--.--');
+  });
+
+  test('aligns the selected block to the playhead', async ({ page }) => {
+    await loadAudio(page);
+    await pasteLyrics(page, ['Line one', 'Line two', 'Line three']);
+    await play(page);
+    await pausePlayback(page);
+    await setStamp(page, 0, '00:05.00');
+    await setStamp(page, 1, '00:06.00');
+    await setStamp(page, 2, '00:15.00');
+    await page.locator('textarea:not([readonly])').blur();
+    await seekTo(page, 12);
+    await page.waitForTimeout(150);
+
+    const checkboxes = page.getByRole('checkbox', { name: /Select line/ });
+    await checkboxes.nth(0).click();
+    await checkboxes.nth(1).click({ modifiers: ['Shift'] });
+
+    await page.getByRole('button', { name: 'Align first line to current time' }).click();
+    await expect(stampButtons(page).nth(0)).toHaveText('00:12.00');
+    await expect(stampButtons(page).nth(1)).toHaveText('00:13.00');
+    await expect(stampButtons(page).nth(2)).toHaveText('00:15.00');
   });
 
   test('keeps the highlighted line selected when nudged past the playhead', async ({ page }) => {

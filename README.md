@@ -23,6 +23,7 @@ Lyricron is free and open source. If it saves you time, you can support ongoing 
 - Paste timed LRC: pasting timed lyrics into the plain-text field detects them and asks whether to load them as timed lyrics or convert to plain text.
 - Annotate: stamp each line as the song plays, with blank-line support for instrumental gaps.
 - Fine-tune: inline timestamp editing, ±50 ms nudging per line, shift-all, and undo/redo.
+- Bulk edit: select a range of lines to shift them together, realign them to the playhead, or clear their timestamps.
 - Keyboard-driven: annotate, play/pause, seek, and jump between timed lines without the mouse (see Shortcuts below).
 - Output: preview mode, per-line timestamps, and copy/export to `.lrc`.
 - Extras: playback speed control, dark/light/system theme, and project auto-save.
@@ -82,6 +83,17 @@ Defaults, configurable via `.env` (see `.env.example`):
 - `Ctrl/⌘ + ]`: Shift the highlighted line +50 ms.
 - `Delete`: Delete the last timestamp.
 - `Ctrl/⌘ + Delete`: Delete the highlighted line's timestamp.
+
+**Selection**
+
+Select lines with the checkbox rail in the left margin (click, Shift-click for a range, or drag across lines), or select all/timed/untimed from the list icon in the pane header.
+
+- `Shift + ↑`: Extend the selection up.
+- `Shift + ↓`: Extend the selection down.
+- `Esc`: Clear the selection.
+- `[`: Shift the selected lines -50 ms.
+- `]`: Shift the selected lines +50 ms.
+- `Delete`: Clear the selected timestamps.
 
 **History**
 

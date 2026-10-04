@@ -45,6 +45,45 @@ test.describe('mobile layout', () => {
     await expect(page.getByTestId('raw-list')).toBeVisible();
   });
 
+  test('long-presses to start a selection and applies a bulk action', async ({ page }) => {
+    await loadAudio(page);
+    await page.locator('textarea:not([readonly])').first().fill('Line one\nLine two\nLine three');
+    await page.getByRole('tab', { name: 'Timed' }).click();
+
+    const stamps = page.locator('button[title="Click to edit the timestamp"]');
+    for (const [index, value] of [
+      [0, '00:05.00'],
+      [1, '00:10.00'],
+    ] as const) {
+      await stamps.nth(index).click();
+      const field = page.locator('input:not([type])').first();
+      await field.fill(value);
+      await field.press('Enter');
+    }
+
+    // A long press enters selection mode and selects the pressed row.
+    await page
+      .getByTestId('raw-list')
+      .getByText('Line one')
+      .evaluate((element) => {
+        element.dispatchEvent(
+          new PointerEvent('pointerdown', { bubbles: true, pointerType: 'touch' }),
+        );
+      });
+    await expect(page.getByTestId('selection-count')).toHaveText('1 selected');
+
+    // Tapping another row adds it to the selection.
+    await page.getByTestId('raw-list').getByText('Line two').click();
+    await expect(page.getByTestId('selection-count')).toHaveText('2 selected');
+
+    await page.getByRole('button', { name: 'Shift selected +50 ms' }).click();
+    await expect(stamps.nth(0)).toHaveText('00:05.05');
+    await expect(stamps.nth(1)).toHaveText('00:10.05');
+
+    await page.getByRole('button', { name: 'Deselect lines' }).click();
+    await expect(page.getByTestId('selection-count')).toHaveCount(0);
+  });
+
   test('auto-switches to Timed on annotate and exposes a per-line menu', async ({ page }) => {
     await loadAudio(page);
     await page.locator('textarea:not([readonly])').first().fill('Line one\nLine two\nLine three');

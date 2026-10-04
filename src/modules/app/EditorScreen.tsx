@@ -1,5 +1,6 @@
 import type { LinePulse, LyricLine, MobileTab } from '../../types';
 import type { AnnotationStore } from '../editor/useAnnotationStore';
+import type { LineSelection } from '../editor/useLineSelection';
 import type { AudioPlayer } from '../player/useAudioPlayer';
 import { PlainLyricsPane } from '../editor/PlainLyricsPane';
 import { TimedLyricsPane } from '../editor/TimedLyricsPane';
@@ -29,9 +30,13 @@ interface Props {
   isDecoding: boolean;
   store: AnnotationStore;
   player: AudioPlayer;
+  selection: LineSelection;
   onShiftLine: (index: number, delta: number) => void;
   onSeekLine: (index: number) => void;
   onSetTimeToNow: (index: number) => void;
+  onShiftSelection: (delta: number) => void;
+  onAlignSelection: () => void;
+  onClearSelectionTimes: () => void;
   onHoverLine: (index: number | null) => void;
   onCopyPlain: () => void;
   onCopyTimed: () => void;
@@ -56,9 +61,13 @@ export function EditorScreen({
   isDecoding,
   store,
   player,
+  selection,
   onShiftLine,
   onSeekLine,
   onSetTimeToNow,
+  onShiftSelection,
+  onAlignSelection,
+  onClearSelectionTimes,
   onHoverLine,
   onCopyPlain,
   onCopyTimed,
@@ -86,11 +95,15 @@ export function EditorScreen({
       activeIndex={activeIndex}
       pulse={pulse}
       canSetTime={player.hasStarted}
+      selection={selection}
       onEditTime={store.setTime}
       onClearTime={store.clearTime}
       onShift={onShiftLine}
       onSeekLine={onSeekLine}
       onSetTimeToNow={onSetTimeToNow}
+      onShiftSelection={onShiftSelection}
+      onAlignSelection={onAlignSelection}
+      onClearSelectionTimes={onClearSelectionTimes}
       onSeek={player.seek}
       onHoverLine={onHoverLine}
       onCopy={onCopyTimed}

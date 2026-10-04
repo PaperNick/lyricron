@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Tooltip } from '@mui/material';
 import { TooltipTarget } from '../../components/TooltipTarget';
-import { CopyButton, CopyIcon, Header, Title } from './Pane.styles';
+import { CopyIcon, Header, HeaderIconButton, Title } from './Pane.styles';
 
 interface Props {
   title: string;
@@ -27,9 +27,14 @@ export function PaneHeader({
       <Title variant="subtitle1">{title}</Title>
       <Tooltip title={copyTooltip}>
         <TooltipTarget>
-          <CopyButton size="small" onClick={onCopy} disabled={copyDisabled} aria-label={copyLabel}>
+          <HeaderIconButton
+            size="small"
+            onClick={onCopy}
+            disabled={copyDisabled}
+            aria-label={copyLabel}
+          >
             <CopyIcon />
-          </CopyButton>
+          </HeaderIconButton>
         </TooltipTarget>
       </Tooltip>
       {children}

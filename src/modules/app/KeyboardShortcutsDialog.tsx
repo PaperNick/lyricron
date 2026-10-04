@@ -19,7 +19,11 @@ const deleteActive = `Ctrl/⌘ + ${shortcutLabel(SHORTCUTS.delete)}`;
 const setActive = `Ctrl/⌘ + ${shortcutLabel(SHORTCUTS.annotate)}`;
 const seekBack = shortcutLabel(SHORTCUTS.seekBack);
 const seekForward = shortcutLabel(SHORTCUTS.seekForward);
-const help = '?';
+const selectUp = shortcutLabel(SHORTCUTS.selectUp);
+const selectDown = shortcutLabel(SHORTCUTS.selectDown);
+const deselect = shortcutLabel(SHORTCUTS.deselect);
+// Help is Shift + the configured key, so `/` (default) is shown as `?`.
+const help = SHORTCUTS.help === 'Slash' ? '?' : `Shift + ${shortcutLabel(SHORTCUTS.help)}`;
 
 interface ShortcutGroup {
   title: string;
@@ -55,6 +59,18 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
       [`Ctrl/⌘ + ${shiftLater}`, 'Shift the highlighted line +50 ms'],
       [deleteKey, 'Delete the last timestamp'],
       [deleteActive, "Delete the highlighted line's timestamp"],
+    ],
+  },
+  {
+    title: 'Selection',
+    shortcuts: [
+      ['Shift + click', 'Select a range (or drag across lines)'],
+      [`Shift + ${selectUp}`, 'Extend the selection up'],
+      [`Shift + ${selectDown}`, 'Extend the selection down'],
+      [deselect, 'Clear the selection'],
+      [shiftEarlier, 'Shift the selected lines -50 ms'],
+      [shiftLater, 'Shift the selected lines +50 ms'],
+      [deleteKey, 'Clear the selected timestamps'],
     ],
   },
   {

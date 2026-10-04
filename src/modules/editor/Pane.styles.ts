@@ -41,7 +41,7 @@ export const RowSurface = styled('div')(({ theme }) => ({
   transition: 'background-color .12s ease',
 }));
 
-export const CopyButton = styled(IconButton)({
+export const HeaderIconButton = styled(IconButton)({
   width: 32,
   height: 32,
 });

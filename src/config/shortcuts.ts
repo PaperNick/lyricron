@@ -17,6 +17,9 @@ export const SHORTCUTS = {
   delete: read(env.VITE_SHORTCUT_DELETE, 'Delete'),
   seekBack: read(env.VITE_SHORTCUT_SEEK_BACK, 'ArrowLeft'),
   seekForward: read(env.VITE_SHORTCUT_SEEK_FORWARD, 'ArrowRight'),
+  selectUp: read(env.VITE_SHORTCUT_SELECT_UP, 'ArrowUp'),
+  selectDown: read(env.VITE_SHORTCUT_SELECT_DOWN, 'ArrowDown'),
+  deselect: read(env.VITE_SHORTCUT_DESELECT, 'Escape'),
   help: read(env.VITE_SHORTCUT_HELP, 'Slash'),
 };
 
@@ -36,6 +39,7 @@ export function shortcutLabel(code: string): string {
     ArrowRight: '→',
     ArrowUp: '↑',
     ArrowDown: '↓',
+    Escape: 'Esc',
     BracketLeft: '[',
     BracketRight: ']',
     Backslash: '\\',

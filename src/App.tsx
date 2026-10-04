@@ -3,6 +3,8 @@ import { CssBaseline, Snackbar, ThemeProvider, useMediaQuery } from '@mui/materi
 import type { LinePulse, LinePulseDirection, LyricLine, MobileTab, PendingConfirm } from './types';
 import { useAudioPlayer } from './modules/player/useAudioPlayer';
 import { useAnnotationStore } from './modules/editor/useAnnotationStore';
+import { useLineSelection } from './modules/editor/useLineSelection';
+import { useSelectionActions } from './modules/editor/useSelectionActions';
 import { useIsMobile } from './hooks/useIsMobile';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useFileDrop } from './modules/import/useFileDrop';
@@ -98,9 +100,9 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
   const pulseTimer = useRef<number | undefined>(undefined);
   const importInputRef = useRef<HTMLInputElement>(null);
 
-  const triggerPulse = useCallback((index: number, direction: LinePulseDirection) => {
+  const triggerPulse = useCallback((indices: number[], direction: LinePulseDirection) => {
     setPulse((current) => ({
-      index,
+      indices,
       direction,
       nonce: (current?.nonce ?? 0) + 1,
     }));
@@ -111,6 +113,7 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
   useEffect(() => () => window.clearTimeout(pulseTimer.current), []);
 
   const { lines } = store;
+  const selection = useLineSelection(lines);
   const timedLines = useMemo(() => lines.filter((line) => line.time !== null), [lines]);
 
   const hasRealLyrics = useMemo(() => hasLyrics(lines), [lines]);
@@ -146,6 +149,17 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
     return index;
   }, [lines, player.currentTime]);
 
+  const selectionActions = useSelectionActions({
+    selection,
+    store,
+    activeIndex,
+    currentTime: player.currentTime,
+    hasStarted: player.hasStarted,
+    seek: player.seek,
+    triggerPulse,
+    notify: setSnackbar,
+  });
+
   const canAnnotate = player.hasStarted && nextIndex !== -1 && player.currentTime > previousTime;
 
   const annotateHint = useMemo(() => {
@@ -177,7 +191,7 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
         return;
       }
       store.setTime(index, player.currentTime);
-      triggerPulse(index, 'now');
+      triggerPulse([index], 'now');
     },
     [player.hasStarted, player.currentTime, store, triggerPulse],
   );
@@ -193,7 +207,7 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
         return;
       }
       store.setTime(index, next);
-      triggerPulse(index, delta < 0 ? 'earlier' : 'later');
+      triggerPulse([index], delta < 0 ? 'earlier' : 'later');
       // Keep the playhead on the line when a nudge pushes it past it.
       const current = player.currentTime;
       if (time <= current && next > current) {
@@ -288,6 +302,11 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
     shiftLine,
     deleteLine: store.clearTime,
     setTimeToNow,
+    isSelecting: selection.isSelecting,
+    extendSelection: selectionActions.extend,
+    dismissSelection: selection.clear,
+    shiftSelection: selectionActions.shift,
+    clearSelectionTimes: selectionActions.clearTimes,
   });
 
   useProjectPersistence(lines, player.fileName);
@@ -358,9 +377,13 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
         isDecoding={player.isDecoding}
         store={store}
         player={player}
+        selection={selection}
         onShiftLine={shiftLine}
         onSeekLine={seekToLine}
         onSetTimeToNow={setTimeToNow}
+        onShiftSelection={selectionActions.shift}
+        onAlignSelection={selectionActions.alignToPlayhead}
+        onClearSelectionTimes={selectionActions.clearTimes}
         onHoverLine={setHoveredIndex}
         onCopyPlain={copyPlain}
         onCopyTimed={copyTimed}
