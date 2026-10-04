@@ -9,6 +9,7 @@
 ## About
 
 - [How it works](__SITE_URL__/#how-it-works): the four-step workflow.
+- [Bulk actions](__SITE_URL__/#bulk-actions): select and retime a range of lines at once.
 - [Features](__SITE_URL__/#features): what Lyricron can do.
 - [Output](__SITE_URL__/#output): the .lrc format it exports.
 
