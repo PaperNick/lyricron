@@ -6,12 +6,14 @@
 
 - [Launch the app](__SITE_URL__/app/): the Lyricron editor, no account or install needed.
 
-## About
+## Pages
 
-- [How it works](__SITE_URL__/#how-it-works): the four-step workflow.
-- [Bulk actions](__SITE_URL__/#bulk-actions): select and retime a range of lines at once.
-- [Features](__SITE_URL__/#features): what Lyricron can do.
-- [Output](__SITE_URL__/#output): the .lrc format it exports.
+- [Home](__SITE_URL__/): what Lyricron is and why you'd use it.
+- [How it works](__SITE_URL__/how-it-works/): the step-by-step guide to syncing lyrics to a song.
+- [LRC format](__SITE_URL__/lrc-format/): what an .lrc file is, its syntax and tags, and LRC vs SRT.
+- [FAQ](__SITE_URL__/faq/): short answers to the most common questions.
+- [Privacy](__SITE_URL__/privacy/): Lyricron never uploads your files; everything runs in the browser.
+- [Blog](__SITE_URL__/blog/): guides on the LRC format, syncing lyrics, and player setup.
 
 ## Development
 

@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -20,6 +20,26 @@ function getRevision() {
   }
 }
 
+/** All files under `dir`, recursively. */
+function walk(dir) {
+  const files = [];
+  for (const name of readdirSync(dir)) {
+    const fullPath = path.join(dir, name);
+    if (statSync(fullPath).isDirectory()) {
+      files.push(...walk(fullPath));
+    } else {
+      files.push(fullPath);
+    }
+  }
+  return files;
+}
+
+/** Turns a built .html path into its public URL (`index.html` → `/`). */
+function toUrl(relativePath) {
+  const withoutIndex = relativePath.replace(/\/?index\.html$/, '');
+  return `${siteUrl}/${withoutIndex === '' ? '' : `${withoutIndex}/`}`;
+}
+
 const revision = getRevision();
 const revisionSnippet = revision
   ? `<a class="foot-rev" href="${repoUrl}/commit/${revision}" target="_blank" rel="noreferrer">rev ${revision}</a>`
@@ -30,14 +50,30 @@ mkdirSync(outDir, { recursive: true });
 
 cpSync(path.join(root, 'website'), outDir, { recursive: true });
 
-// Resolve the __SITE_URL__ placeholder in the copied text files.
-for (const name of ['index.html', 'llms.txt']) {
-  const filePath = path.join(outDir, name);
-  if (existsSync(filePath)) {
-    const content = readFileSync(filePath, 'utf8').replaceAll('__SITE_URL__', siteUrl);
-    writeFileSync(filePath, content);
+// Resolve the __SITE_URL__ placeholder in every text file outside the app bundle.
+const textExtensions = new Set(['.html', '.txt', '.xml']);
+const appDir = path.join(outDir, 'app');
+for (const filePath of walk(outDir)) {
+  if (filePath.startsWith(appDir + path.sep) || !textExtensions.has(path.extname(filePath))) {
+    continue;
   }
+  const content = readFileSync(filePath, 'utf8').replaceAll('__SITE_URL__', siteUrl);
+  writeFileSync(filePath, content);
 }
+
+// Generate sitemap.xml: one entry per built .html page.
+const pageUrls = walk(outDir)
+  .filter((filePath) => path.extname(filePath) === '.html')
+  .map((filePath) => toUrl(path.relative(outDir, filePath)))
+  .sort();
+const sitemap = [
+  '<?xml version="1.0" encoding="UTF-8"?>',
+  '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+  ...pageUrls.map((url) => `  <url><loc>${url}</loc></url>`),
+  '</urlset>',
+  '',
+].join('\n');
+writeFileSync(path.join(outDir, 'sitemap.xml'), sitemap);
 
 // Stamp the deployed revision into the landing page footer.
 const indexPath = path.join(outDir, 'index.html');
@@ -56,5 +92,5 @@ if (!existsSync(distDir)) {
 cpSync(distDir, path.join(outDir, 'app'), { recursive: true });
 
 console.log(
-  `Assembled site at ${path.relative(root, outDir)}/ (site URL: ${siteUrl}${revision ? `, rev ${revision}` : ''})`,
+  `Assembled site at ${path.relative(root, outDir)}/ (site URL: ${siteUrl}${revision ? `, rev ${revision}` : ''}, ${pageUrls.length} pages in sitemap)`,
 );
