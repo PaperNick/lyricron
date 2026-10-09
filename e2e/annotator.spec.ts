@@ -297,6 +297,15 @@ test.describe('lyricron', () => {
     expect(await isPaused(page)).toBe(true);
   });
 
+  test('clears an empty editor without confirmation', async ({ page }) => {
+    await loadAudio(page);
+
+    await page.getByRole('button', { name: 'Clear' }).click();
+
+    await expect(page.getByText('Enter Manually')).toBeVisible();
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+  });
+
   test('imports a plain .txt file from the Add lyrics screen', async ({ page }) => {
     await page.goto('/');
     await page.setInputFiles('input[type="file"][accept*="audio"]', AUDIO);

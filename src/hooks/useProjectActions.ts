@@ -77,6 +77,11 @@ export function useProjectActions({
     setSnackbar(message);
   };
 
+  const clearLines = () => {
+    store.replaceLines([]);
+    setLyricsReady(false);
+  };
+
   /**
    * Scans a chosen file for lyrics embedded in its ID3 tags. The result feeds
    * the "Load from MP3" card on the add-lyrics screen; nothing is applied
@@ -229,17 +234,25 @@ export function useProjectActions({
     setSnackbar('Converted pasted lyrics to plain text');
   };
 
-  const reset = () =>
+  const reset = () => {
+    const clear = () => {
+      player.pause();
+      clearLines();
+    };
+
+    // Nothing to lose: skip the confirmation and head back to the add-lyrics screen.
+    if (!hasContent) {
+      clear();
+      return;
+    }
+
     setConfirmState({
       title: 'Clear everything?',
       message: 'This will remove all lyrics and timestamps. This cannot be undone.',
       confirmLabel: 'Clear',
-      action: () => {
-        player.pause();
-        store.replaceLines([]);
-        setLyricsReady(false);
-      },
+      action: clear,
     });
+  };
 
   const newProject = () =>
     setConfirmState({
@@ -249,8 +262,7 @@ export function useProjectActions({
       confirmLabel: 'New project',
       action: () => {
         player.reset();
-        store.replaceLines([]);
-        setLyricsReady(false);
+        clearLines();
         setHoveredIndex(null);
         setMobileTab('lyrics');
         setEmbeddedLines(null);
@@ -274,8 +286,7 @@ export function useProjectActions({
         setEmbeddedStatus('unsupported');
       }
       if (resetLyrics) {
-        store.replaceLines([]);
-        setLyricsReady(false);
+        clearLines();
         setHoveredIndex(null);
         setMobileTab('lyrics');
       }

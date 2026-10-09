@@ -162,7 +162,7 @@ export function TopBar({
                 <ListItemText>Export</ListItemText>
               </MenuItem>
               <Divider />
-              <MenuItem disabled={!inEditor || !hasContent} onClick={() => runMenuAction(onReset)}>
+              <MenuItem disabled={!inEditor} onClick={() => runMenuAction(onReset)}>
                 <ListItemIcon>
                   <DeleteSweepIcon fontSize="small" />
                 </ListItemIcon>
@@ -211,11 +211,7 @@ export function TopBar({
             </Tooltip>
             <Tooltip title="Clear everything">
               <TooltipTarget>
-                <Button
-                  startIcon={<DeleteSweepIcon />}
-                  disabled={!inEditor || !hasContent}
-                  onClick={onReset}
-                >
+                <Button startIcon={<DeleteSweepIcon />} disabled={!inEditor} onClick={onReset}>
                   Clear
                 </Button>
               </TooltipTarget>
