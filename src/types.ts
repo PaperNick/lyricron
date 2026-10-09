@@ -23,6 +23,9 @@ export type MobileTab = 'lyrics' | 'timed';
 
 export type ExportFormat = 'lrc' | 'srt';
 
+/** Availability of lyrics embedded in the loaded audio file's ID3 tags. */
+export type EmbeddedLyricsStatus = 'unsupported' | 'checking' | 'none' | 'available';
+
 export interface PendingConfirm {
   title: string;
   message: string;

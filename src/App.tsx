@@ -325,6 +325,8 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
     reset,
     newProject,
     loadDroppedFile,
+    embeddedLyricsStatus,
+    importEmbeddedLyrics,
   } = useProjectActions({
     store,
     player,
@@ -356,6 +358,8 @@ function AppShell({ themeMode, onCycleTheme }: AppShellProps) {
           onManual={() => setLyricsReady(true)}
           onSearch={() => setLrclibOpen(true)}
           onImport={openImport}
+          embeddedLyricsStatus={embeddedLyricsStatus}
+          onLoadEmbeddedLyrics={importEmbeddedLyrics}
         />
       );
     }

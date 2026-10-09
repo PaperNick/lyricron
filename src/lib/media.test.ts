@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isPlayableMedia } from './media';
+import { isMp3, isPlayableMedia } from './media';
 
 function file(name: string, type = ''): File {
   return new File([new Uint8Array(1)], name, { type });
@@ -21,5 +21,21 @@ describe('isPlayableMedia', () => {
     expect(isPlayableMedia(file('notes.txt', 'text/plain'))).toBe(false);
     expect(isPlayableMedia(file('image.png', 'image/png'))).toBe(false);
     expect(isPlayableMedia(file('lyrics.lrc'))).toBe(false);
+  });
+});
+
+describe('isMp3', () => {
+  it('accepts mp3 extensions and MIME types', () => {
+    expect(isMp3(file('song.mp3'))).toBe(true);
+    expect(isMp3(file('SONG.MP3'))).toBe(true);
+    expect(isMp3(file('recording', 'audio/mpeg'))).toBe(true);
+  });
+
+  it('rejects other media', () => {
+    expect(isMp3(file('song.wav', 'audio/wav'))).toBe(false);
+    expect(isMp3(file('song.m4a', 'audio/mp4'))).toBe(false);
+    expect(isMp3(file('clip.mp4', 'video/mp4'))).toBe(false);
+    expect(isMp3(file('song.flac', 'audio/flac'))).toBe(false);
+    expect(isMp3(file('notes.txt', 'text/plain'))).toBe(false);
   });
 });

@@ -8,14 +8,16 @@ interface Props {
   description: string;
   onClick: () => void;
   solidBorder?: boolean;
+  highlighted?: boolean;
 }
 
-export function ActionCard({ icon, title, description, onClick, solidBorder }: Props) {
+export function ActionCard({ icon, title, description, onClick, solidBorder, highlighted }: Props) {
   return (
     <Card
       role="button"
       tabIndex={0}
       $solidBorder={solidBorder}
+      $highlighted={highlighted}
       onClick={onClick}
       onKeyDown={(event) => {
         if (event.key === 'Enter' || event.key === ' ') {

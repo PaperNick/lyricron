@@ -1,3 +1,4 @@
+import type { EmbeddedLyricsStatus } from '../../types';
 import { ActionCard } from './ActionCard';
 import {
   ActionCards,
@@ -7,20 +8,40 @@ import {
   ImportCardIcon,
   ManualIcon,
   SearchCardIcon,
+  TagsCardIcon,
 } from '../../App.styles';
 
 interface Props {
   onManual: () => void;
   onSearch: () => void;
   onImport: () => void;
+  embeddedLyricsStatus: EmbeddedLyricsStatus;
+  onLoadEmbeddedLyrics: () => void;
 }
 
-export function ChooseScreen({ onManual, onSearch, onImport }: Props) {
+export function ChooseScreen({
+  onManual,
+  onSearch,
+  onImport,
+  embeddedLyricsStatus,
+  onLoadEmbeddedLyrics,
+}: Props) {
+  const showTagsCard = embeddedLyricsStatus === 'available';
+
   return (
     <ChooseScreenRoot>
       <AddLyricsStack spacing={4}>
         <AddLyricsTitle variant="h5">Add lyrics</AddLyricsTitle>
-        <ActionCards direction={{ xs: 'column', md: 'row' }} spacing={3}>
+        <ActionCards $columns={showTagsCard ? 2 : 3}>
+          {showTagsCard && (
+            <ActionCard
+              icon={<TagsCardIcon color="primary" />}
+              title="Load from MP3"
+              description="Use the lyrics already saved inside this file."
+              onClick={onLoadEmbeddedLyrics}
+              highlighted
+            />
+          )}
           <ActionCard
             icon={<ManualIcon color="primary" />}
             title="Enter Manually"

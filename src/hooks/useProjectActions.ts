@@ -1,12 +1,20 @@
+import { useRef, useState } from 'react';
 import type { RefObject } from 'react';
-import type { ExportFormat, LyricLine, MobileTab, PendingConfirm } from '../types';
+import type {
+  EmbeddedLyricsStatus,
+  ExportFormat,
+  LyricLine,
+  MobileTab,
+  PendingConfirm,
+} from '../types';
 import type { AnnotationStore } from '../modules/editor/useAnnotationStore';
 import type { AudioPlayer } from '../modules/player/useAudioPlayer';
 import type { LrclibSelection } from '../lib/lrclib';
 import { hasLyrics, linesToText, textToLines } from '../lib/plain';
 import { lrcToPlainText, parseLrc, serializeLrc } from '../lib/lrc';
 import { parseSrt, serializeSrt } from '../lib/srt';
-import { isPlayableMedia } from '../lib/media';
+import { isMp3, isPlayableMedia } from '../lib/media';
+import { embeddedLyricsToLines, extractEmbeddedLyrics } from '../lib/embeddedLyrics';
 
 interface ProjectActionsOptions {
   store: AnnotationStore;
@@ -33,6 +41,14 @@ export interface ProjectActions {
   reset: () => void;
   newProject: () => void;
   loadDroppedFile: (file: File) => void;
+  embeddedLyricsStatus: EmbeddedLyricsStatus;
+  importEmbeddedLyrics: () => void;
+}
+
+/** "N timed" or "N plain", used in import snackbar messages. */
+function describeLines(lines: LyricLine[]): string {
+  const timedCount = lines.filter((line) => line.time !== null).length;
+  return timedCount > 0 ? `${timedCount} timed` : `${lines.length} plain`;
 }
 
 /** Project-level actions: loading, exporting, copying and resetting lyrics. */
@@ -48,6 +64,10 @@ export function useProjectActions({
   setConfirmState,
   setHoveredIndex,
 }: ProjectActionsOptions): ProjectActions {
+  const loadTokenRef = useRef(0);
+  const [embeddedLines, setEmbeddedLines] = useState<LyricLine[] | null>(null);
+  const [embeddedStatus, setEmbeddedStatus] = useState<EmbeddedLyricsStatus>('checking');
+
   const applyImportedLines = (imported: LyricLine[], message: string) => {
     store.replaceLines(imported);
     setLyricsReady(true);
@@ -55,6 +75,43 @@ export function useProjectActions({
       setMobileTab('timed');
     }
     setSnackbar(message);
+  };
+
+  /**
+   * Scans a chosen file for lyrics embedded in its ID3 tags. The result feeds
+   * the "Load from MP3" card on the add-lyrics screen; nothing is applied
+   * until the user picks it.
+   */
+  const detectEmbeddedLyrics = async (file: File, token: number) => {
+    let lines: LyricLine[] | null = null;
+    try {
+      const embedded = await extractEmbeddedLyrics(file);
+      if (embedded) {
+        const candidate = embeddedLyricsToLines(embedded);
+        if (hasLyrics(candidate)) {
+          lines = candidate;
+        }
+      }
+    } catch {
+      // A malformed tag simply means there is nothing to offer.
+    }
+
+    if (token !== loadTokenRef.current) {
+      return; // A newer file was loaded while this scan was still in flight.
+    }
+    setEmbeddedLines(lines);
+    setEmbeddedStatus(lines ? 'available' : 'none');
+  };
+
+  /** Loads the lyrics detected in the current file's tags, if any. */
+  const importEmbeddedLyrics = () => {
+    if (!embeddedLines) {
+      return;
+    }
+    applyImportedLines(
+      embeddedLines,
+      `Imported ${describeLines(embeddedLines)} lines from MP3 tags`,
+    );
   };
 
   const importFile = async (file: File | undefined) => {
@@ -69,10 +126,7 @@ export function useProjectActions({
       setSnackbar('No lyrics found in that file');
       return;
     }
-    const message =
-      timed.length > 0
-        ? `Imported ${timed.length} timed lines`
-        : `Imported ${imported.length} plain lines`;
+    const message = `Imported ${describeLines(imported)} lines`;
     const apply = () => applyImportedLines(imported, message);
     if (hasContent) {
       setConfirmState({
@@ -199,6 +253,8 @@ export function useProjectActions({
         setLyricsReady(false);
         setHoveredIndex(null);
         setMobileTab('lyrics');
+        setEmbeddedLines(null);
+        setEmbeddedStatus('checking');
       },
     });
 
@@ -207,14 +263,22 @@ export function useProjectActions({
       setSnackbar('That file type cannot be played');
       return;
     }
-    const start = () => {
-      store.replaceLines([]);
-      setLyricsReady(false);
-      setHoveredIndex(null);
-      setMobileTab('lyrics');
-      player.loadFile(file);
-    };
-    const keepExisting = () => {
+    const adopt = (resetLyrics: boolean) => {
+      // Any new load invalidates a tag scan still in flight for a previous file.
+      const token = ++loadTokenRef.current;
+      setEmbeddedLines(null);
+      if (isMp3(file)) {
+        setEmbeddedStatus('checking');
+        void detectEmbeddedLyrics(file, token);
+      } else {
+        setEmbeddedStatus('unsupported');
+      }
+      if (resetLyrics) {
+        store.replaceLines([]);
+        setLyricsReady(false);
+        setHoveredIndex(null);
+        setMobileTab('lyrics');
+      }
       player.loadFile(file);
     };
     if (hasContent) {
@@ -224,12 +288,12 @@ export function useProjectActions({
           'This will discard the current audio, lyrics and timestamps and load the dropped file instead.',
         confirmLabel: 'Replace',
         secondaryLabel: 'Use existing',
-        secondaryAction: keepExisting,
-        action: start,
+        secondaryAction: () => adopt(false),
+        action: () => adopt(true),
       });
       return;
     }
-    start();
+    adopt(true);
   };
 
   return {
@@ -244,5 +308,7 @@ export function useProjectActions({
     reset,
     newProject,
     loadDroppedFile,
+    embeddedLyricsStatus: embeddedStatus,
+    importEmbeddedLyrics,
   };
 }

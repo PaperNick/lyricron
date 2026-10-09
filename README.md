@@ -19,6 +19,7 @@ Lyricron is free and open source. If it saves you time, you can support ongoing 
 ## Features
 
 - Load media: drop an audio or video file anywhere on the page, or use the file picker (only the audio plays).
+- Embedded lyrics: MP3s that carry SYLT/USLT lyrics show a "Load from MP3" card on the Add lyrics screen (SYLT preferred; timed USLT is detected).
 - Add lyrics: type or paste them by hand, import a `.txt`/`.lrc` file, or fetch synced lyrics from [LRCLIB](https://lrclib.net).
 - Paste timed LRC: pasting timed lyrics into the plain-text field detects them and asks whether to load them as timed lyrics or convert to plain text.
 - Annotate: stamp each line as the song plays, with blank-line support for instrumental gaps.

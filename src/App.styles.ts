@@ -13,6 +13,7 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import SearchIcon from '@mui/icons-material/Search';
+import SubtitlesIcon from '@mui/icons-material/Subtitles';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { BrandMark } from './modules/app/BrandMark';
 import { fontSizes } from './theme/typography';
@@ -231,12 +232,21 @@ export const AddLyricsTitle = styled(Typography)({
   fontWeight: 700,
 });
 
-export const ActionCards = styled(Stack)(({ theme }) => ({
-  alignItems: 'stretch',
+export interface ActionCardsProps {
+  $columns: 2 | 3;
+}
+
+export const ActionCards = styled('div', {
+  shouldForwardProp: (prop) => prop !== '$columns',
+})<ActionCardsProps>(({ theme, $columns }) => ({
+  display: 'grid',
   justifyContent: 'center',
+  justifyItems: 'center',
   width: '100%',
-  [theme.breakpoints.down('md')]: {
-    alignItems: 'center',
+  gap: theme.spacing(3),
+  gridTemplateColumns: '1fr',
+  [theme.breakpoints.up('md')]: {
+    gridTemplateColumns: `repeat(${$columns}, minmax(0, 300px))`,
   },
 }));
 
@@ -305,5 +315,9 @@ export const SearchCardIcon = styled(SearchIcon)({
 });
 
 export const ImportCardIcon = styled(FileOpenIcon)({
+  fontSize: fontSizes.iconMd,
+});
+
+export const TagsCardIcon = styled(SubtitlesIcon)({
   fontSize: fontSizes.iconMd,
 });
