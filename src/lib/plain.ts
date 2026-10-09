@@ -204,6 +204,6 @@ export function linesToText(lines: LyricLine[]): string {
   return lines.map((line) => line.text).join('\n');
 }
 
-export function hasLyrics(lines: LyricLine[]): boolean {
+export function hasLyrics(lines: ReadonlyArray<{ text: string }>): boolean {
   return lines.some((line) => line.text.trim() !== '');
 }
